@@ -1,7 +1,7 @@
 <script lang="ts">
   import FetchState from "$lib/states/fetch.svelte";
   import supabase from "$lib/supabase";
-  import session from "$lib/supabase/session.svelte";
+  import session from "$lib/states/session.svelte";
 
   const signOut = new FetchState(() => supabase.auth.signOut());
 </script>
