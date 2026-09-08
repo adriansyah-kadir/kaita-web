@@ -23,7 +23,7 @@
       legend="Kaita"
       class="bg-base-200 border border-base-300 rounded-box p-4 [&_legend]:text-xl"
     >
-      <label for="email" class="label">Password</label>
+      <label for="email" class="label">Email</label>
       <input id="email" name="email" class="input w-full" />
       {#each form.issues.email as issue}
         <p class="text-error">{issue.message}</p>
