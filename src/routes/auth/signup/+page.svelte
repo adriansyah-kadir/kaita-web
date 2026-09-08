@@ -1,6 +1,6 @@
 <script lang="ts">
-  import FormState from "$lib/states/form.svelte";
-  import FetchState from "$lib/states/fetch.svelte";
+  import FormState from "$lib/runes/form.svelte";
+  import FetchState from "$lib/runes/fetch.svelte";
   import supabase from "$lib/supabase";
   import Fieldset from "$lib/ui/fieldset.svelte";
   import { signInSchema, type SignInSchema } from "$lib/schemas/auth";

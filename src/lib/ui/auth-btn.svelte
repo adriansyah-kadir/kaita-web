@@ -1,5 +1,5 @@
 <script lang="ts">
-  import FetchState from "$lib/states/fetch.svelte";
+  import FetchState from "$lib/runes/fetch.svelte";
   import supabase from "$lib/supabase";
   import session from "$lib/states/session.svelte";
 
