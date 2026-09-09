@@ -9,6 +9,7 @@ export default class FetchState<I extends Array<any>, O, E = any> {
     this.fetching = true
     try {
       this.current = await this.fn(...input)
+      return this.current
     } catch (e) {
       this.error = e as any
     } finally {
