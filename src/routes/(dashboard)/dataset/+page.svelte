@@ -6,13 +6,15 @@
   import { personsPaginated } from "$lib/supabase/persons";
   import { Debounced } from "runed";
   import Table from "./table.svelte";
+  import { fetchTags } from "$lib/supabase/tags";
 
   let page = $state(1);
   let pageSize = $state(10);
-  let search = $state("");
-  let tags = $state<string[]>([]);
+  let searchName = $state("");
+  let filterTags = $state<string[]>([]);
+  const tags = new FetchState(fetchTags);
   const persons = new FetchState(personsPaginated);
-  const searchDebounced = new Debounced(() => search);
+  const searchDebounced = new Debounced(() => searchName);
   const fetchingDebounced = new Debounced(() => persons.fetching);
   const personsCount = $derived(persons.current?.length ?? 0);
 
@@ -26,8 +28,12 @@
       page,
       pageSize,
       searchName: searchDebounced.current,
-      containTags: tags,
+      containTags: filterTags,
     });
+  });
+
+  $effect(() => {
+    tags.fetch();
   });
 </script>
 
@@ -75,7 +81,7 @@
 {#snippet SearchName()}
   <label class="input">
     <SearchIcon size={16} />
-    <input bind:value={search} class="grow" placeholder="Search name" />
+    <input bind:value={searchName} class="grow" placeholder="Search name" />
     <span
       class:hidden={!fetchingDebounced.current}
       class="loading loading-spinner"
@@ -84,9 +90,14 @@
 {/snippet}
 
 {#snippet FilterTag()}
-  <select class="select" bind:value={tags[0]}>
-    <option value={undefined}>Filter tag</option>
-    <option value="admin">Admin</option>
-    <option value="active">Active</option>
-  </select>
+  <button popovertarget="filter-tag" class="input"
+    >{filterTags.length ? filterTags.join(", ") : "Filter tags"}</button
+  >
+  <div popover id="filter-tag" class="bg-transparent" style="position-area: bottom span-right;">
+    <select class="select" bind:value={filterTags} multiple>
+      {#each tags.current as tag}
+        <option value={tag.name} class="shrink-0">{tag.name}</option>
+      {/each}
+    </select>
+  </div>
 {/snippet}
