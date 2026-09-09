@@ -67,6 +67,13 @@ export type Database = {
             referencedRelation: "persons"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "faces_person_id_fkey"
+            columns: ["person_id"]
+            isOneToOne: false
+            referencedRelation: "persons_view"
+            referencedColumns: ["id"]
+          },
         ]
       }
       person_tags: {
@@ -88,6 +95,13 @@ export type Database = {
             columns: ["person_id"]
             isOneToOne: false
             referencedRelation: "persons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "person_tags_person_id_fkey"
+            columns: ["person_id"]
+            isOneToOne: false
+            referencedRelation: "persons_view"
             referencedColumns: ["id"]
           },
           {
@@ -152,7 +166,20 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      persons_view: {
+        Row: {
+          created_at: string | null
+          faces: number | null
+          id: string | null
+          metadata: Json | null
+          name: string | null
+          owner_id: string | null
+          sub: string | null
+          tags: string[] | null
+          updated_at: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never
