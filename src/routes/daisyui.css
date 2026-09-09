@@ -1,3 +1,10 @@
 @plugin "daisyui" {
   themes: dim --default;
 }
+
+@plugin "daisyui/theme" {
+  name: "dim";
+  default: true;
+  --color-base-100: oklch(28.036% 0.019 264.182);
+  --color-base-200: oklch(30.857% 0.023 264.149);
+}
