@@ -7,7 +7,6 @@ export default class FetchState<I extends Array<any>, O, E = any> {
 
   fetch = async (...input: I) => {
     this.fetching = true
-    this.reset()
     try {
       this.current = await this.fn(...input)
     } catch (e) {
