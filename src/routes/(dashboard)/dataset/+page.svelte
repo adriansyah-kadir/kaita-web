@@ -6,13 +6,13 @@
   import { personsPaginated } from "$lib/supabase/persons";
   import { Debounced } from "runed";
   import Table from "./table.svelte";
-  import { fetchTags } from "$lib/supabase/tags";
+  import TagsCombobox from "$lib/ui/tags-combobox.svelte";
+  import type { Tables } from "$lib/supabase/types";
 
   let page = $state(1);
   let pageSize = $state(10);
   let searchName = $state("");
-  let filterTags = $state<string[]>([]);
-  const tags = new FetchState(fetchTags);
+  let filterTags = $state<Tables<"tags">[]>([]);
   const persons = new FetchState(personsPaginated);
   const searchDebounced = new Debounced(() => searchName);
   const fetchingDebounced = new Debounced(() => persons.fetching);
@@ -28,12 +28,8 @@
       page,
       pageSize,
       searchName: searchDebounced.current,
-      containTags: filterTags,
+      containTags: filterTags.map((e) => e.name),
     });
-  });
-
-  $effect(() => {
-    tags.fetch();
   });
 </script>
 
@@ -49,7 +45,7 @@
   <h2 class="text-2xl font-bold">Dataset</h2>
   <div class="flex items-end gap-3">
     {@render SearchName()}
-    {@render FilterTag()}
+    <TagsCombobox bind:selected={filterTags} />
   </div>
 {/snippet}
 
@@ -87,17 +83,4 @@
       class="loading loading-spinner"
     ></span>
   </label>
-{/snippet}
-
-{#snippet FilterTag()}
-  <button popovertarget="filter-tag" class="input"
-    >{filterTags.length ? filterTags.join(", ") : "Filter tags"}</button
-  >
-  <div popover id="filter-tag" class="bg-transparent" style="position-area: bottom span-right;">
-    <select class="select" bind:value={filterTags} multiple>
-      {#each tags.current as tag}
-        <option value={tag.name} class="shrink-0">{tag.name}</option>
-      {/each}
-    </select>
-  </div>
 {/snippet}
