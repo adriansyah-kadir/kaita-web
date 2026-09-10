@@ -4,7 +4,7 @@
   import ChevronRightIcon from "@lucide/svelte/icons/chevron-right";
   import ChevronLeftIcon from "@lucide/svelte/icons/chevron-left";
   import { personsPaginated } from "$lib/supabase/persons";
-  import { Debounced } from "runed";
+  import { Debounced, watch } from "runed";
   import Table from "./table.svelte";
   import TagsCombobox from "$lib/ui/tags-combobox.svelte";
   import type { Tables } from "$lib/supabase/types";
@@ -23,14 +23,35 @@
   const nextPage = () => page++;
   const prevPage = () => page > 1 && page--;
 
-  $effect(() => {
-    persons.fetch({
-      page,
-      pageSize,
-      searchName: searchDebounced.current,
-      containTags: filterTags.map((e) => e.name),
-    });
-  });
+  watch(
+    [
+      () => page,
+      () => pageSize,
+      () => searchDebounced.current,
+      () => filterTags.map((e) => e.name),
+    ],
+    (
+      [currentPage, currentPageSize, search, tags],
+      [, , prevSearch, prevTags],
+    ) => {
+      const filterChanged =
+        search !== prevSearch ||
+        tags.length !== prevTags?.length ||
+        tags.some((tag, i) => tag !== prevTags[i]);
+
+      if (filterChanged && currentPage !== 1) {
+        page = 1;
+        return;
+      }
+
+      persons.fetch({
+        page: currentPage,
+        pageSize: currentPageSize,
+        searchName: search,
+        containTags: tags,
+      });
+    },
+  );
 </script>
 
 <div class="px-3 pb-3">
