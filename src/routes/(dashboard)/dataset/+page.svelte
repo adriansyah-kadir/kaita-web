@@ -8,45 +8,40 @@
   import Table from "./table.svelte";
   import TagsCombobox from "$lib/ui/tags-combobox.svelte";
   import type { Tables } from "$lib/supabase/types";
+  import PaginationState from "$lib/runes/pagination.svelte";
 
-  let page = $state(1);
-  let pageSize = $state(10);
   let searchName = $state("");
   let filterTags = $state<Tables<"tags">[]>([]);
   const persons = new FetchState(personsPaginated);
   const searchDebounced = new Debounced(() => searchName);
   const fetchingDebounced = new Debounced(() => persons.fetching);
-  const personsCount = $derived(persons.current?.length ?? 0);
+  const pagination = new PaginationState();
 
-  const pageStart = $derived((page - 1) * pageSize + 1);
-  const pageEnd = $derived(pageStart + personsCount - 1);
-  const nextPage = () => page++;
-  const prevPage = () => page > 1 && page--;
+  $effect(() => {
+    pagination.total = persons.current?.count ?? null;
+  });
 
   watch(
     [
-      () => page,
-      () => pageSize,
+      () => pagination.page,
+      () => pagination.pageSize,
       () => searchDebounced.current,
       () => filterTags.map((e) => e.name),
     ],
-    (
-      [currentPage, currentPageSize, search, tags],
-      [, , prevSearch, prevTags],
-    ) => {
+    ([page, pageSize, search, tags], [, , prevSearch, prevTags]) => {
       const filterChanged =
         search !== prevSearch ||
-        tags.length !== prevTags?.length ||
-        tags.some((tag, i) => tag !== prevTags[i]);
+        new Set(tags).symmetricDifference(new Set(prevTags)).size > 0;
 
-      if (filterChanged && currentPage !== 1) {
-        page = 1;
+      if (filterChanged && page !== 1) {
+        pagination.reset();
+        // prevent double fetch pagination.reset already retrigger this
         return;
       }
 
       persons.fetch({
-        page: currentPage,
-        pageSize: currentPageSize,
+        page,
+        pageSize,
         searchName: search,
         containTags: tags,
       });
@@ -57,7 +52,7 @@
 <div class="px-3 pb-3">
   <div class="bg-base-200 [&>:not(table)]:p-3 rounded-box">
     {@render Header()}
-    <Table persons={persons.current} />
+    <Table persons={persons.current?.data} />
     {@render Footer()}
   </div>
 </div>
@@ -72,17 +67,25 @@
 
 {#snippet Footer()}
   <div class="flex items-center">
-    <p class="w-full">Showing {pageStart} ~ {pageEnd}</p>
+    <p class="w-full">
+      Showing {pagination.start} ~ {pagination.end}
+      of {pagination.total}
+    </p>
     {@render PrevBtn()}
-    <input class="btn btn-square" type="text" bind:value={page} />
+    <input
+      disabled={!pagination.hasPrevious && !pagination.hasNext}
+      class="btn btn-square"
+      type="text"
+      bind:value={pagination.page}
+    />
     {@render NextBtn()}
   </div>
 {/snippet}
 
 {#snippet NextBtn()}
   <button
-    disabled={personsCount != pageSize}
-    onclick={nextPage}
+    disabled={!pagination.hasNext}
+    onclick={pagination.next}
     class="btn btn-square"
   >
     <ChevronRightIcon size={16} />
@@ -90,7 +93,11 @@
 {/snippet}
 
 {#snippet PrevBtn()}
-  <button disabled={page <= 1} onclick={prevPage} class="btn btn-square">
+  <button
+    disabled={!pagination.hasPrevious}
+    onclick={pagination.previous}
+    class="btn btn-square"
+  >
     <ChevronLeftIcon size={16} />
   </button>
 {/snippet}
