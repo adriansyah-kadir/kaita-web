@@ -72,14 +72,18 @@
       of {pagination.total}
     </p>
     {@render PrevBtn()}
-    <input
-      disabled={!pagination.hasPrevious && !pagination.hasNext}
-      class="btn btn-square"
-      type="text"
-      bind:value={pagination.page}
-    />
+    {@render InputPage()}
     {@render NextBtn()}
   </div>
+{/snippet}
+
+{#snippet InputPage()}
+  <input
+    disabled={!pagination.hasPrevious && !pagination.hasNext}
+    class="btn btn-square"
+    type="text"
+    bind:value={pagination.page}
+  />
 {/snippet}
 
 {#snippet NextBtn()}
