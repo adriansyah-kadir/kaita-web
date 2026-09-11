@@ -30,7 +30,7 @@ export default class Debounced<T> {
   }
 
   cancel = () => {
-    if (this.scheduled) {
+    if (!this.scheduled) {
       return false
     }
 
