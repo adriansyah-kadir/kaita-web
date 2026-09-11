@@ -1,11 +1,11 @@
-export default class FetchState<I extends Array<any>, O, E = any> {
+export default class FetchState<F extends (...any: any) => Promise<any>, E = any> {
   fetching = $state(false)
-  current = $state<O>()
+  current = $state<Awaited<ReturnType<F>>>()
   error = $state<E>()
 
-  constructor(readonly fn: (...input: I) => Promise<O>) { }
+  constructor(readonly fn: F) { }
 
-  fetch = async (...input: I) => {
+  fetch = async (...input: Parameters<F>) => {
     this.fetching = true
     try {
       this.current = await this.fn(...input)
