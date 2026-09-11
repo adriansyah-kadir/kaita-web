@@ -1,16 +1,11 @@
 <script lang="ts">
-  import FetchState from "$lib/runes/fetch.svelte";
-  import SearchIcon from "@lucide/svelte/icons/search";
-  import ChevronRightIcon from "@lucide/svelte/icons/chevron-right";
-  import ChevronLeftIcon from "@lucide/svelte/icons/chevron-left";
-  import { personsPaginated } from "$lib/supabase/persons";
-  import { watch } from "runed";
-  import Debounced from "$lib/runes/debounced.svelte";
   import Table from "./table.svelte";
   import TagsCombobox from "$lib/ui/tags-combobox.svelte";
   import type { Tables } from "$lib/supabase/types";
-  import PaginationState from "$lib/runes/pagination.svelte";
   import type { Snippet } from "svelte";
+  import Pagination from "$lib/ui/pagination.svelte";
+  import PersonsListState from "./person-list.svelte";
+  import SearchInput from "$lib/ui/search-input.svelte";
 
   type ActionsProps = {
     filtered?: Tables<"persons_view">[] | null;
@@ -24,112 +19,28 @@
 
   const { action }: Props = $props();
 
-  let filterTags = $state<Tables<"tags">[]>([]);
-  const pagination = new PaginationState();
-  const persons = new FetchState(personsPaginated);
-  const search = new Debounced(() => "");
-  const loading = new Debounced(() => persons.fetching);
-
-  $effect(() => {
-    pagination.total = persons.current?.count ?? null;
-  });
-
-  watch(
-    [
-      () => pagination.page,
-      () => pagination.pageSize,
-      () => search.value,
-      () => filterTags.map((e) => e.name),
-    ],
-    ([page, pageSize, search, tags], [, , prevSearch, prevTags]) => {
-      const filterChanged =
-        search !== prevSearch ||
-        new Set(tags).symmetricDifference(new Set(prevTags)).size > 0;
-
-      if (filterChanged && page !== 1) {
-        pagination.reset();
-        // prevent double fetch pagination.reset already retrigger this
-        return;
-      }
-
-      persons.fetch({
-        page,
-        pageSize,
-        searchName: search,
-        containTags: tags,
-      });
-    },
-  );
+  const persons = new PersonsListState();
 </script>
 
 <div class="bg-base-200 [&>:not(table)]:p-3 rounded-box">
   {@render Header()}
-  <Table persons={persons.current?.data} />
-  {@render Footer()}
+  <Table persons={persons.fetch.current?.data} />
+  <Pagination state={persons.pagination} />
 </div>
 
 {#snippet Header()}
   <h2 class="text-2xl font-bold">Dataset</h2>
   <div class="flex items-end gap-3">
-    {@render SearchName()}
-    <TagsCombobox bind:selected={filterTags} />
+    <SearchInput
+      loading={persons.loading.value}
+      value={persons.search.target}
+      oninput={persons.search.set}
+    />
+    <TagsCombobox bind:selected={persons.tags} />
     {@render action?.({
-      filtered: persons.current?.data,
-      search: search.value,
-      tags: filterTags,
+      filtered: persons.fetch.current?.data,
+      search: persons.search.value,
+      tags: persons.tags,
     })}
   </div>
-{/snippet}
-
-{#snippet Footer()}
-  <div class="flex items-center">
-    <p class="w-full">
-      Showing {pagination.start} ~ {pagination.end}
-      of {pagination.total}
-    </p>
-    {@render PrevBtn()}
-    {@render InputPage()}
-    {@render NextBtn()}
-  </div>
-{/snippet}
-
-{#snippet InputPage()}
-  <input
-    disabled={!pagination.hasPrevious && !pagination.hasNext}
-    class="btn btn-square"
-    type="text"
-    bind:value={pagination.page}
-  />
-{/snippet}
-
-{#snippet NextBtn()}
-  <button
-    disabled={!pagination.hasNext}
-    onclick={pagination.next}
-    class="btn btn-square"
-  >
-    <ChevronRightIcon size={16} />
-  </button>
-{/snippet}
-
-{#snippet PrevBtn()}
-  <button
-    disabled={!pagination.hasPrevious}
-    onclick={pagination.previous}
-    class="btn btn-square"
-  >
-    <ChevronLeftIcon size={16} />
-  </button>
-{/snippet}
-
-{#snippet SearchName()}
-  <label class="input">
-    <SearchIcon size={16} />
-    <input
-      bind:value={() => search.target ?? "", search.set}
-      class="grow"
-      placeholder="Search name"
-    />
-    <span class:hidden={!loading.value} class="loading loading-spinner"></span>
-  </label>
 {/snippet}
