@@ -1,8 +1,8 @@
-import { type Getter } from "runed"
+import { watch, type Getter } from "runed"
 
 export default class Debounced<T> {
   value: T
-  target = $state<T>()
+  target: T
   duration_ms: number
 
   #scheduled?: ReturnType<typeof setTimeout>
@@ -14,9 +14,8 @@ export default class Debounced<T> {
   constructor(getter: Getter<T>, duration_ms: number = 500) {
     this.duration_ms = duration_ms
     this.value = $state(getter())
-    $effect(() => {
-      this.set(getter())
-    })
+    this.target = $state(getter())
+    watch(getter, this.set)
   }
 
   set = (v: T) => {
