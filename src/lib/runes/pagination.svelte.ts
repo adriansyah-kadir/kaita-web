@@ -1,7 +1,19 @@
+type Props = {
+  page?: number,
+  pageSize?: number,
+  total?: number
+}
+
 export default class PaginationState {
-  page = $state(1);
-  pageSize = $state(10);
-  total = $state<number | null>(null);
+  page: number;
+  pageSize: number;
+  total: number | null
+
+  constructor(props?: Props) {
+    this.page = $state(props?.page ?? 1)
+    this.pageSize = $state(props?.pageSize ?? 10)
+    this.total = $state(props?.total ?? null)
+  }
 
   get offset() {
     return (this.page - 1) * this.pageSize;
