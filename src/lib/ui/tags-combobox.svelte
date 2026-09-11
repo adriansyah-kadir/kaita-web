@@ -43,13 +43,14 @@
     Select tags
   {/each}
 </button>
+
 <div
   id="{id}-popover"
   popover
-  class="w-[anchor-size(width)] bg-base-200 rounded-box p-2 border border-base-100"
+  class="w-[anchor-size(width)] bg-base-200 rounded-box p-2 border border-base-100 shadow-xs"
 >
   <div class="flex gap-2">
-    <button class="btn btn-square" onclick={combobox.clear}
+    <button class="btn btn-square btn-ghost" onclick={combobox.clear}
       ><XIcon size={16} /></button
     >
     <SearchInput value={search.target} oninput={search.set} />
