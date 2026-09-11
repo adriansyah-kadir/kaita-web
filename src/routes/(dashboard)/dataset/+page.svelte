@@ -1,7 +1,8 @@
 <script lang="ts">
-  import Dataset from "./dataset.svelte";
+  import PersonDataset from "./person-dataset.svelte";
 </script>
 
 <div class="px-3 pb-3">
-  <Dataset />
+  <PersonDataset>
+  </PersonDataset>
 </div>

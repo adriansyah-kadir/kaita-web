@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Table from "./table.svelte";
+  import PersonTable from "./person-table.svelte";
   import TagsCombobox from "$lib/ui/tags-combobox.svelte";
   import type { Tables } from "$lib/supabase/types";
   import type { Snippet } from "svelte";
@@ -24,7 +24,7 @@
 
 <div class="bg-base-200 [&>:not(table)]:p-3 rounded-box">
   {@render Header()}
-  <Table persons={persons.fetch.current?.data} />
+  <PersonTable persons={persons.fetch.current?.data} />
   <Pagination state={persons.pagination} />
 </div>
 
