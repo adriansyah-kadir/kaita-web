@@ -3,26 +3,28 @@
   import FetchState from "$lib/runes/fetch.svelte";
   import { fetchTags } from "$lib/supabase/tags";
   import type { Tables } from "$lib/supabase/types";
-  import CheckIcon from "@lucide/svelte/icons/check";
   import XIcon from "@lucide/svelte/icons/x";
-  import { Debounced } from "runed";
+  import SearchInput from "./search-input.svelte";
+  import Debounced from "$lib/runes/debounced.svelte";
+
+  type Tag = Tables<"tags">;
 
   let {
     selected = $bindable([]),
   }: {
-    selected?: Tables<"tags">[];
+    selected?: Tag[];
   } = $props();
 
-  let search = $state("");
-  const searchDebounced = new Debounced(() => search);
+  const id = crypto.randomUUID();
+  const search = new Debounced(() => "");
   const tags = new FetchState(fetchTags);
-  const combobox = new ComboboxState(() => ({
+  const combobox = new ComboboxState<Tag>(() => ({
     items: tags.current ?? [],
     key: (tag) => tag.id,
   }));
 
   $effect(() => {
-    tags.fetch(searchDebounced.current);
+    tags.fetch(search.value);
   });
 
   $effect(() => {
@@ -30,38 +32,37 @@
   });
 </script>
 
-<div class="dropdown">
-  <div class="input w-fit">
-    {#if combobox.selected.length > 0}
-      <button
-        onclick={combobox.clear}
-        class="btn btn-xs btn-neutral btn-square"
-      >
-        <XIcon size={16} />
-      </button>
-    {/if}
-    {#each combobox.selected as tag}
-      <span class="badge badge-neutral relative">
-        {tag.name}
-      </span>
-    {/each}
-    <input bind:value={search} placeholder="Filter tag name" />
+<button
+  command="toggle-popover"
+  commandfor="{id}-popover"
+  class="input flex-wrap min-h-(--size) h-auto cursor-pointer w-auto min-w-xs py-2"
+>
+  {#each combobox.selected as tag}
+    <span class="badge badge-neutral">{tag.name}</span>
+  {:else}
+    Select tags
+  {/each}
+</button>
+<div
+  id="{id}-popover"
+  popover
+  class="w-[anchor-size(width)] bg-base-200 rounded-box p-2 border border-base-100"
+>
+  <div class="flex gap-2">
+    <button class="btn btn-square" onclick={combobox.clear}
+      ><XIcon size={16} /></button
+    >
+    <SearchInput value={search.target} oninput={search.set} />
   </div>
-  <ul class="dropdown-content menu bg-base-300 rounded-box">
+  <div class="max-h-80 grow overflow-auto mt-2">
     {#each combobox.items as tag}
-      {@const pick = combobox.toggle.bind(null, tag.id)}
-      <li>
-        <button onclick={pick} class="pr-10">
-          <span class:opacity-0={!combobox.isSelected(tag.id)}
-            ><CheckIcon size={16} /></span
-          >
-          {tag.name}
-        </button>
-      </li>
-    {:else}
-      <li class="menu-disabled">
-        <button>Empty</button>
-      </li>
+      <button
+        onclick={() => combobox.toggle(tag.id)}
+        class:badge-soft={!combobox.isSelected(tag.id)}
+        class="list-row text-start badge badge-lg m-1"
+      >
+        {tag.name}
+      </button>
     {/each}
-  </ul>
+  </div>
 </div>
