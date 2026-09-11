@@ -1,14 +1,14 @@
 [popover] {
-  position-area: top span-right;
-  position-try-fallbacks:
-    bottom span-left,
-    top span-left,
-    bottom span-right;
-}
+  --offset: 8px;
+  --slide: 8px; /* internal: sign flips per fallback, see below */
 
-[popover] {
+  position-area: top span-right;
+  position-try-fallbacks: --pop-bottom-right, --pop-top-left, --pop-bottom-left;
+
+  margin-block-end: var(--offset);
+
   opacity: 0;
-  transform: translateY(-5px);
+  transform: translateY(calc(var(--slide) * -1));
   filter: blur(2px);
 
   transition:
@@ -27,8 +27,32 @@
   @starting-style {
     &:popover-open {
       opacity: 0;
-      transform: translateY(-5px);
+      transform: translateY(calc(var(--slide) * -1));
       filter: blur(2px);
     }
   }
+}
+
+/* each fallback restates margin on the correct side, so --offset
+   always means "gap between popover and anchor" regardless of
+   which side the popover actually ends up on */
+
+@position-try --pop-bottom-right {
+  position-area: bottom span-right;
+  margin-block-start: var(--offset);
+  margin-block-end: 0;
+  --slide: -8px;
+}
+
+@position-try --pop-top-left {
+  position-area: top span-left;
+  margin-block-end: var(--offset);
+  --slide: 8px;
+}
+
+@position-try --pop-bottom-left {
+  position-area: bottom span-left;
+  margin-block-start: var(--offset);
+  margin-block-end: 0;
+  --slide: -8px;
 }
