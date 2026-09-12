@@ -72,6 +72,10 @@ export default class ComboboxState<T> {
     return this.#selected.has(key)
   }
 
+  get hasSelected() {
+    return this.#selected.size > 0
+  }
+
   get isSelectedAll() {
     if (this.#items.size <= 0 && this.#selected.size <= 0) return false;
     const itemKeys = new Set(this.#items.keys())
