@@ -2,11 +2,15 @@
   import ChevronRightIcon from "@lucide/svelte/icons/chevron-right";
   import ChevronLeftIcon from "@lucide/svelte/icons/chevron-left";
   import type PaginationState from "$lib/runes/pagination.svelte";
+  import type { HTMLAttributes } from "svelte/elements";
 
-  const { state }: { state: PaginationState } = $props();
+  const {
+    state,
+    ...props
+  }: { state: PaginationState } & HTMLAttributes<HTMLDivElement> = $props();
 </script>
 
-<div class="flex items-center">
+<div {...props} class="flex items-center {props.class}">
   <p class="w-full">
     Showing {state.start} ~ {state.end}
     {#if state.total}
