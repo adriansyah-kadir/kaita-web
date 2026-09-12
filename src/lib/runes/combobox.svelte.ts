@@ -73,6 +73,7 @@ export default class ComboboxState<T> {
   }
 
   get isSelectedAll() {
+    if (this.#items.size <= 0 && this.#selected.size <= 0) return false;
     const itemKeys = new Set(this.#items.keys())
     const selectedKeys = new Set(this.#selected.keys())
     return selectedKeys.isSupersetOf(itemKeys)
