@@ -14,7 +14,8 @@
     suffix,
     links = [
       { name: "Dashboard", link: "/" },
-      { name: "Dataset", link: "/dataset" },
+      { name: "Persons", link: "/persons" },
+      { name: "Tags", link: "/tags" },
     ],
   }: Props = $props();
 </script>

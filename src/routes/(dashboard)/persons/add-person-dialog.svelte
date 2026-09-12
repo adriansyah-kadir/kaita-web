@@ -3,15 +3,19 @@
   import FormState from "$lib/runes/form.svelte";
   import { addPersonSchema } from "$lib/schemas/person";
   import { insertPerson } from "$lib/supabase/persons";
+  import type { Tables } from "$lib/supabase/types";
   import Fieldset from "$lib/ui/fieldset.svelte";
   import TagsCombobox from "$lib/ui/tags-combobox.svelte";
   import PlusIcon from "@lucide/svelte/icons/plus";
+
+  const { success }: { success?: (person: Tables<"persons">) => void } =
+    $props();
 
   let dialog = $state<HTMLDialogElement>();
   let tags = $state<TagsCombobox>();
   const addPerson = new FetchState(insertPerson);
   const form = new FormState(addPersonSchema, {
-    onSubmit: ({ name, tagIds }) => addPerson.fetch(name, tagIds),
+    onSubmit: ({ name, tagIds }) => addPerson.fetch(name, tagIds).then(success),
   });
 
   const discard = () => {
@@ -56,7 +60,14 @@
 {#snippet TagsInput()}
   <Fieldset legend="Tags">
     {#each tags?.combobox.selected as t}
-      <input hidden checked multiple name="tagIds" value={t.id} type="checkbox" />
+      <input
+        hidden
+        checked
+        multiple
+        name="tagIds"
+        value={t.id}
+        type="checkbox"
+      />
     {/each}
     <TagsCombobox bind:this={tags} />
     <p class="label">Lorem ipsum dolor sit amet.</p>
