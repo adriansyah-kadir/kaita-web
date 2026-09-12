@@ -8,8 +8,9 @@ export default class FetchState<F extends (...any: any) => Promise<any>, E = any
   fetch = async (...input: Parameters<F>) => {
     this.fetching = true
     try {
-      this.current = await this.fn(...input)
-      return this.current
+      const value = await this.fn(...input)
+      this.current = value
+      return value
     } catch (e) {
       this.error = e as any
     } finally {
