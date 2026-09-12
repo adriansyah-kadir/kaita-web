@@ -5,3 +5,9 @@ export async function fetchTags(searchName?: string) {
   if (error) throw error;
   return data
 }
+
+export async function insertTag(name: string) {
+  const tag = await supabase.from("tags").insert({ name }).select().single()
+  if (tag.error) throw tag.error;
+  return tag.data
+}
