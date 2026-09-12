@@ -20,7 +20,7 @@
   const addTag = new FetchState(insertTag);
   const search = new Debounced(() => "");
   const tags = new FetchState(fetchTags);
-  const combobox = new ComboboxState<Tag>(() => ({
+  export const combobox = new ComboboxState<Tag>(() => ({
     items: tags.current ?? [],
     key: (tag) => tag.id,
   }));
