@@ -18,3 +18,11 @@ export async function personsPaginated({ page = 1, pageSize = 10, containTags = 
   if (error !== null) throw error;
   return { data, count }
 }
+
+export async function insertPerson(name: string, tagIds: string[]) {
+  const person = await supabase.from("persons").insert({ name }).select().single()
+  if (person.error) throw person.error;
+  const tags = await supabase.from("person_tags").insert(tagIds.map(e => ({ person_id: person.data.id, tag_id: e }))).select()
+  if (tags.error) throw tags.error;
+  return { person: person.data, tags: tags.data }
+}

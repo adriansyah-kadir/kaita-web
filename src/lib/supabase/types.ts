@@ -128,7 +128,7 @@ export type Database = {
           id?: string
           metadata?: Json
           name: string
-          owner_id: string
+          owner_id?: string
           sub?: string | null
           updated_at?: string
         }
@@ -154,7 +154,7 @@ export type Database = {
           created_at?: string
           id?: string
           name: string
-          owner_id: string
+          owner_id?: string
         }
         Update: {
           created_at?: string
