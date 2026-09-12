@@ -63,7 +63,12 @@ export default class FormState<TSchema extends AnyObjectSchema> {
   async #validate(formData: FormData) {
     this.validating = true;
     try {
-      const data = Object.fromEntries(formData.entries());
+      
+      const data = Object.fromEntries(Object.entries(this.schema.entries as Record<string, v.BaseSchemaAsync<any, any, any>>).map(([k, s]) => {
+        if (s.type === "array") return [k, formData.getAll(k)]
+        return [k, formData.get(k)]
+      }));
+
       const result = await v.safeParseAsync(this.schema, data, {
         abortEarly: false,
         abortPipeEarly: false,
