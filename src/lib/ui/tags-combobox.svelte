@@ -1,10 +1,8 @@
 <script lang="ts">
   import ComboboxState from "$lib/runes/combobox.svelte";
   import FetchState from "$lib/runes/fetch.svelte";
-  import { fetchTags, insertTag } from "$lib/supabase/tags";
+  import { fetchTags } from "$lib/supabase/tags";
   import type { Tables } from "$lib/supabase/types";
-  import XIcon from "@lucide/svelte/icons/x";
-  import PlusIcon from "@lucide/svelte/icons/plus";
   import SearchInput from "./search-input.svelte";
   import Debounced from "$lib/runes/debounced.svelte";
 
@@ -17,7 +15,6 @@
   } = $props();
 
   const id = crypto.randomUUID();
-  const addTag = new FetchState(insertTag);
   const search = new Debounced(() => "");
   const tags = new FetchState(fetchTags);
   export const combobox = new ComboboxState<Tag>(() => ({
@@ -53,20 +50,7 @@
   class="w-[anchor-size(width)] bg-base-200 rounded-box p-2 border border-base-100 shadow-xs"
 >
   <div class="flex gap-2">
-    <button
-      type="button"
-      class="btn btn-square btn-ghost"
-      onclick={combobox.clear}><XIcon size={16} /></button
-    >
-    <SearchInput value={search.target} oninput={search.set} />
-    <button
-      type="button"
-      class="btn btn-square btn-ghost"
-      disabled={addTag.fetching}
-      onclick={() => {
-        addTag.fetch(search.target).then(() => tags.fetch(search.target));
-      }}><PlusIcon size={16} /></button
-    >
+    <SearchInput value={search.target} onvalue={search.set} />
   </div>
   <div class="max-h-80 grow overflow-auto mt-2">
     {#each combobox.items as tag}
@@ -81,5 +65,19 @@
     {:else}
       <div class="text-center grow">Empty</div>
     {/each}
+  </div>
+  <div class="join join-horizontal w-full *:w-1/2 mt-2">
+    <button
+      disabled={!combobox.hasSelected}
+      type="button"
+      class="join-item btn btn-sm btn-warning btn-soft"
+      onclick={combobox.toggleall.bind(null, false)}>Clear</button
+    >
+    <button
+      disabled={combobox.isSelectedAll}
+      type="button"
+      class="join-item btn btn-sm btn-info btn-soft"
+      onclick={combobox.toggleall.bind(null, true)}>All</button
+    >
   </div>
 </div>
