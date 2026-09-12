@@ -64,6 +64,8 @@
       >
         {tag.name}
       </button>
+    {:else}
+      <div class="text-center grow">Empty</div>
     {/each}
   </div>
 </div>
