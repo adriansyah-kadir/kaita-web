@@ -12,8 +12,8 @@
     personsPaginated(...input);
   const persons = new FetchState(paginated);
   const params = new SearchParamsState({
-    page: (v) => Number(v ?? 1),
-    pageSize: (v) => Number(v ?? 10),
+    page: (v) => Number(v?.length ? v : 1),
+    pageSize: (v) => Number(v?.length ? v : 10),
     name: (v) => v,
     tags: (...names) => names.filter((e) => e !== undefined),
   });
