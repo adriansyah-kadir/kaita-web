@@ -7,10 +7,12 @@
   import AddPersonDialog from "./add-person-dialog.svelte";
   import PersonFilter from "./person-filter.svelte";
 
-  const persons = new FetchState(personsPaginated);
+  const paginated = async (...input: Parameters<typeof personsPaginated>) =>
+    personsPaginated(...input);
+  const persons = new FetchState(paginated);
   const params = new SearchParamsState({
     page: (v) => Number(v ?? 1),
-    pageSize: (v) => Number(v ?? 5),
+    pageSize: (v) => Number(v ?? 10),
     name: (v) => v,
     tags: (v) => v?.split(","),
   });
@@ -19,8 +21,8 @@
     persons.fetch({
       page: params.values.page,
       pageSize: params.values.pageSize,
-      searchName: params.values.name,
-      containTags: params.values.tags,
+      name: params.values.name,
+      tags: params.values.tags,
     });
 
   $effect(() => {
