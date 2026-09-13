@@ -5,17 +5,19 @@
 
   let {
     page = $bindable(1),
-    pageSize = $bindable(10),
+    pageSize,
     total,
     onNext,
     onPrev,
+    onChange,
     ...props
   }: {
-    onNext?: (page: number, pageSize: number) => void;
-    onPrev?: (page: number, pageSize: number) => void;
-    total?: number;
+    onNext?: (page: number) => void;
+    onPrev?: (page: number) => void;
+    onChange?: (page: number) => void;
     page?: number;
-    pageSize?: number;
+    total: number;
+    pageSize: number;
   } & HTMLAttributes<HTMLDivElement> = $props();
 
   const start = $derived(total === 0 ? 0 : (page - 1) * pageSize + 1);
@@ -31,13 +33,15 @@
   function previous() {
     if (!hasPrevious) return;
     page -= 1;
-    onPrev?.(page, pageSize);
+    onPrev?.(page);
+    onChange?.(page);
   }
 
   function next() {
     if (!hasNext) return;
     page += 1;
-    onNext?.(page, pageSize);
+    onNext?.(page);
+    onChange?.(page);
   }
 
   function onPageInput(e: Event) {
