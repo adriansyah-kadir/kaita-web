@@ -1,3 +1,4 @@
+import { building } from "$app/env"
 import { goto } from "$app/navigation"
 import { page } from "$app/state"
 import { watch } from "runed"
@@ -22,9 +23,11 @@ export default class SearchParamsState<P extends Params> {
     this.schema = schema
     this.values = $state(this.#buildValues())
 
-    watch(() => page.url.searchParams, () => {
-      this.values = this.#buildValues()
-    })
+    if (!building) {
+      watch(() => page.url.searchParams, () => {
+        this.values = this.#buildValues()
+      })
+    }
   }
 
   update = (values: Partial<Values<P>>) => {
@@ -45,8 +48,13 @@ export default class SearchParamsState<P extends Params> {
 
   #map(k: string) {
     const coder = this.schema[k]
-    const param = page.url.searchParams.get(k)
+    const param = this.#param(k)
     const value = typeof coder === "function" ? coder(param) : coder.decode(param)
     return [k, value]
+  }
+
+  #param(k: string) {
+    if (!building) return page.url.searchParams.get(k);
+    else return null
   }
 }
