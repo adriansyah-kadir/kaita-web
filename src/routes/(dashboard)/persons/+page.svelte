@@ -37,26 +37,35 @@
     <AddPersonDialog onSuccess={refetch} />
   </div>
 
-  <Table
-    key={(row) => row.id!}
-    columns={["name", "tags", "metadata", "created_at", "updated_at", "faces"]}
-    Cells={{
-      tags: Tags,
-      created_at: Timestamp,
-      updated_at: Timestamp,
-      metadata: Json,
-      faces: Faces,
-    }}
-    Heads={{
-      name: "Name",
-      tags: "Tags",
-      metadata: "Meta",
-      created_at: "Created",
-      updated_at: "Updated",
-      faces: "Faces",
-    }}
-    values={persons.current?.data ?? []}
-  />
+  <div class="overflow-x-auto">
+    <Table
+      key={(row) => row.id!}
+      columns={[
+        "name",
+        "tags",
+        "metadata",
+        "created_at",
+        "updated_at",
+        "faces",
+      ]}
+      Cells={{
+        tags: Tags,
+        created_at: Timestamp,
+        updated_at: Timestamp,
+        metadata: Json,
+        faces: Faces,
+      }}
+      Heads={{
+        name: "Name",
+        tags: "Tags",
+        metadata: "Meta",
+        created_at: "Created",
+        updated_at: "Updated",
+        faces: "Faces",
+      }}
+      values={persons.current?.data ?? []}
+    />
+  </div>
 
   <Pagination
     class="px-3"
