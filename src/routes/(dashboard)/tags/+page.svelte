@@ -17,16 +17,28 @@
 </script>
 
 <div class="p-3 space-y-3">
-  <div class="px-3">
-    <SearchInput placeholder="Search tag name" debounce={500} onvalue={(name) => params.update({ name })} />
+  <div>
+    <SearchInput
+      placeholder="Search tag name"
+      debounce={500}
+      onvalue={(name) => params.update({ name })}
+    />
   </div>
-  <Table
-    Cells={{ created_at: Timestamp }}
-    Heads={{ id: "Id", name: "Name", owner_id: "User", created_at: "Created" }}
-    columns={["id", "name", "owner_id", "created_at"]}
-    key={(row) => row.id}
-    values={tags.current ?? []}
-  />
+  <div class="overflow-x-auto">
+    <Table
+      class="[&_tr]:hover:bg-neutral bg-base-200 overflow-hidden"
+      Cells={{ created_at: Timestamp }}
+      Heads={{
+        id: "Id",
+        name: "Name",
+        owner_id: "User",
+        created_at: "Created",
+      }}
+      columns={["id", "name", "owner_id", "created_at"]}
+      key={(row) => row.id}
+      values={tags.current ?? []}
+    />
+  </div>
 </div>
 
 {#snippet Timestamp({ cellValue }: { cellValue: string })}

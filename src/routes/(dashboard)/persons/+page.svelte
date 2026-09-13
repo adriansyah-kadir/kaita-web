@@ -32,13 +32,14 @@
 </script>
 
 <div class="p-3 space-y-3">
-  <div class="flex items-center gap-2 px-3">
+  <div class="flex items-center gap-2">
     <PersonFilter />
     <AddPersonDialog onSuccess={refetch} />
   </div>
 
   <div class="overflow-x-auto">
     <Table
+      class="[&_tr]:hover:bg-neutral bg-base-200 overflow-hidden"
       key={(row) => row.id!}
       columns={[
         "name",
@@ -68,7 +69,6 @@
   </div>
 
   <Pagination
-    class="px-3"
     total={persons.current?.count ?? 0}
     pageSize={params.values.pageSize}
     onChange={(page) => params.update({ page })}
