@@ -13,9 +13,9 @@
     prefix,
     suffix,
     links = [
-      { name: "Dashboard", link: "/" },
       { name: "Persons", link: "/persons" },
       { name: "Tags", link: "/tags" },
+      { name: "Faces", link: "/faces" },
     ],
   }: Props = $props();
 </script>
