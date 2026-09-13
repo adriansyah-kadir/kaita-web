@@ -5,17 +5,28 @@
   type Props = {
     loading?: boolean;
     onvalue?: (v: string) => void;
+    debounce?: number;
   } & HTMLInputAttributes;
 
-  let { loading = false, onvalue: onvalue, ...props }: Props = $props();
+  let { loading = false, onvalue, debounce, ...props }: Props = $props();
+
+  let timeout: ReturnType<typeof setTimeout>;
+
+  function handleInput(e: Event & { currentTarget: HTMLInputElement }) {
+    const value = e.currentTarget.value;
+
+    if (!debounce) {
+      onvalue?.(value);
+      return;
+    }
+
+    clearTimeout(timeout);
+    timeout = setTimeout(() => onvalue?.(value), debounce);
+  }
 </script>
 
 <label class="input {props.class}">
   <SearchIcon size={16} />
-  <input
-    {...props}
-    class="grow"
-    oninput={(e) => onvalue?.(e.currentTarget.value)}
-  />
+  <input {...props} class="grow" oninput={handleInput} />
   <span class:hidden={!loading} class="loading loading-spinner"></span>
 </label>
