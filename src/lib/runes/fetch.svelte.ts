@@ -5,16 +5,17 @@ export default class FetchState<F extends (...any: any) => Promise<any>, E = any
 
   constructor(readonly fn: F) { }
 
-  fetch = async (...input: Parameters<F>) => {
+  fetch = async (...input: Parameters<F>): Promise<Awaited<ReturnType<F>>> => {
     this.fetching = true
     try {
       const value = await this.fn(...input)
       this.current = value
+      this.fetching = false
       return value
     } catch (e) {
-      this.error = e as any
-    } finally {
       this.fetching = false
+      this.error = e as any
+      throw e
     }
   }
 
