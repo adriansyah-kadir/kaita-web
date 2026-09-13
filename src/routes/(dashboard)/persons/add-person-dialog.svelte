@@ -8,14 +8,18 @@
   import TagsCombobox from "$lib/ui/tags-combobox.svelte";
   import PlusIcon from "@lucide/svelte/icons/plus";
 
-  const { success }: { success?: (person: Tables<"persons">) => void } =
+  const { onSuccess }: { onSuccess?: (person: Tables<"persons">) => void } =
     $props();
 
   let dialog = $state<HTMLDialogElement>();
   let tags = $state<TagsCombobox>();
   const addPerson = new FetchState(insertPerson);
   const form = new FormState(addPersonSchema, {
-    onSubmit: ({ name, tagIds }) => addPerson.fetch(name, tagIds).then(success),
+    onSubmit: ({ name, tagIds }) =>
+      addPerson.fetch(name, tagIds).then((result) => {
+        onSuccess?.(result.person);
+        discard();
+      }),
   });
 
   const discard = () => {
@@ -23,10 +27,6 @@
     form.reset();
     dialog?.close();
   };
-
-  $effect(() => {
-    if (addPerson.current) discard();
-  });
 </script>
 
 <button

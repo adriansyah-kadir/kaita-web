@@ -34,7 +34,7 @@
 <div class="p-3 space-y-3">
   <div class="flex items-center gap-2 px-3">
     <PersonFilter />
-    <AddPersonDialog success={refetch} />
+    <AddPersonDialog onSuccess={refetch} />
   </div>
 
   <Table
