@@ -1,11 +1,7 @@
 <script lang="ts" generics="T extends Record<string, any>">
-  import FetchState from "$lib/runes/fetch.svelte";
-  import PaginationState from "$lib/runes/pagination.svelte";
   import { type Snippet } from "svelte";
-  import Pagination from "./pagination.svelte";
   import Checkbox from "./checkbox.svelte";
   import ComboboxState from "$lib/runes/combobox.svelte";
-  import Debounced from "$lib/runes/debounced.svelte";
 
   type CellProps<K extends keyof T> = {
     cellValue: T[K];
@@ -15,12 +11,8 @@
   type Cell<K extends keyof T> = Snippet<[CellProps<K>]>;
   type Head = Snippet | string;
 
-  type Select = (
-    pagination: PaginationState,
-  ) => Promise<{ data: T[]; count?: number | null }>;
-
   type Props = {
-    select: Select;
+    values: T[];
     key: (row: T) => string;
     columns?: (keyof T)[];
     selected?: T[];
@@ -33,32 +25,20 @@
 
   let {
     selected = $bindable(),
-    select,
+    values,
     key,
     columns,
     RowAction,
     Cells = {},
     Heads = {},
   }: Props = $props();
-  const values = $derived(new FetchState(select));
-  const first = $derived(values.current?.data.at(0));
+  // const values = $derived(new FetchState(select));
+  const first = $derived(values.at(0));
   const headers = $derived(columns ? columns : Object.keys(first ?? {}));
-  const loading = new Debounced(() => values.fetching);
-  export const pagination = new PaginationState();
   export const combobox = new ComboboxState(() => ({
-    items: values.current?.data ?? [],
+    items: values ?? [],
     key,
   }));
-
-  export const refetch = () => values.fetch(pagination);
-
-  $effect(() => {
-    refetch();
-  });
-
-  $effect(() => {
-    pagination.total = values.current?.count ?? null;
-  });
 
   $effect(() => {
     selected = combobox.selected;
@@ -78,7 +58,7 @@
     </tr>
   </thead>
   <tbody>
-    {#each values.current?.data as row}
+    {#each values as row}
       <tr>
         {@render RowCheck(row)}
         {#each headers as k}
@@ -90,13 +70,10 @@
       </tr>
     {/each}
   </tbody>
-  {#if loading.value}
-    <caption class="text-center">Loading</caption>
-  {:else if !values.current?.data.length}
+  {#if !values.length}
     <caption class="text-center">Empty</caption>
   {/if}
 </table>
-<Pagination class="px-4" state={pagination} />
 
 {#snippet Head(k: keyof T)}
   {@const head = Heads[k]}
