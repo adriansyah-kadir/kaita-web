@@ -3,13 +3,19 @@ import { goto } from "$app/navigation"
 import { page } from "$app/state"
 import { watch } from "runed"
 
-type CoderFunction<T> = (value: string | null) => T
-type CoderObject<T> = { decode: (value: string | null) => T, encode: (value: T) => string | null }
-type Coder<T> = CoderFunction<T> | CoderObject<T>
+type DecodeFunction<T = any> = (...values: (string | undefined)[]) => T
+type CoderObject = {
+  decode: DecodeFunction,
+  encode: (value: any) => string[] | string | null
+}
+type Coder = DecodeFunction | CoderObject
 
-type Params = Record<string, Coder<unknown>>
+type Params = Record<string, Coder>
 
-type Value<T extends Params, K extends keyof T> = T[K] extends CoderFunction<unknown> ? ReturnType<T[K]> : T[K] extends CoderObject<unknown> ? ReturnType<T[K]["decode"]> : never
+type Value<P extends Params, K extends keyof P> =
+  P[K] extends DecodeFunction ? ReturnType<P[K]> :
+  P[K] extends CoderObject ? ReturnType<P[K]["decode"]> :
+  never
 
 type Values<P extends Params> = {
   [K in keyof P]: Value<P, K>
@@ -34,10 +40,11 @@ export default class SearchParamsState<P extends Params> {
     const url = page.url
     for (const k in values) {
       const value = values[k]
-      const coder = this.schema[k]
-      const param = typeof coder === "function" ? String(value) : coder.encode(value)
-      if (param === null || !value) url.searchParams.delete(k);
-      else url.searchParams.set(k, param);
+      const encode = this.#encoder(k)
+      const params = encode(value)
+      if (!params?.length) url.searchParams.delete(k);
+      else if (Array.isArray(params)) params.forEach(url.searchParams.append.bind(url.searchParams, k));
+      else url.searchParams.set(k, params)
     }
     goto(url, { keepFocus: true, noScroll: true })
   }
@@ -47,14 +54,29 @@ export default class SearchParamsState<P extends Params> {
   }
 
   #map(k: string) {
-    const coder = this.schema[k]
-    const param = this.#param(k)
-    const value = typeof coder === "function" ? coder(param) : coder.decode(param)
+    const decode = this.#decoder(k)
+    const params = this.#params(k)
+    const value = decode(...params)
     return [k, value]
   }
 
-  #param(k: string) {
-    if (!building) return page.url.searchParams.get(k);
-    else return null
+  #encoder(k: string) {
+    const s = this.schema[k]
+    if (typeof s === "function") return (value: unknown) => {
+      if (Array.isArray(value)) return value.map(String);
+      return String(value)
+    }
+    return s.encode
+  }
+
+  #decoder(k: string): DecodeFunction {
+    const s = this.schema[k]
+    if (typeof s === "function") return s;
+    return s.decode
+  }
+
+  #params(k: string) {
+    if (building) return []
+    return page.url.searchParams.getAll(k)
   }
 }

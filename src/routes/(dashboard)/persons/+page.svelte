@@ -14,7 +14,7 @@
     page: (v) => Number(v ?? 1),
     pageSize: (v) => Number(v ?? 10),
     name: (v) => v,
-    tags: (v) => v?.split(","),
+    tags: (...names) => names.filter((e) => e !== undefined),
   });
 
   const refetch = () =>
@@ -60,7 +60,8 @@
     class="px-3"
     total={persons.current?.count ?? 0}
     pageSize={params.values.pageSize}
-    onChange={(page) => params.update({ page })}
+    onChange={(page) =>
+      params.update({ page, tags: [...params.values.tags, String(page)] })}
   />
 </div>
 

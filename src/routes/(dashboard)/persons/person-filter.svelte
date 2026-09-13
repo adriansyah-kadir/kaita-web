@@ -12,20 +12,15 @@
 >
 
 <dialog id="person-filter" class="modal">
-  <form class="modal-box w-xs">
+  <form onreset={tags?.combobox.clear} class="modal-box w-xs">
     <Fieldset legend="Name">
       <SearchInput class="w-ful" name="name" />
     </Fieldset>
 
     <Fieldset legend="Tags">
-      <input
-        hidden
-        multiple
-        checked
-        type="checkbox"
-        name="tags"
-        value={tags?.combobox.selected.map((e) => e.name).join(",")}
-      />
+      {#each tags?.combobox.selected as tag}
+        <input hidden name="tags" value={tag.name} />
+      {/each}
       <TagsCombobox bind:this={tags} />
     </Fieldset>
 
