@@ -71,7 +71,7 @@
     {/each}
   </tbody>
   {#if !values.length}
-    <caption class="text-center caption-bottom">Empty</caption>
+    <caption class="text-center caption-bottom p-5">Empty</caption>
   {/if}
 </table>
 
