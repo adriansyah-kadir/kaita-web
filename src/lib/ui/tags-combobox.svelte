@@ -35,7 +35,7 @@
   type="button"
   command="toggle-popover"
   commandfor="{id}-popover"
-  class="input flex-wrap min-h-(--size) h-auto cursor-pointer w-auto min-w-xs py-2"
+  class="input flex-wrap h-auto cursor-pointer w-full py-2"
 >
   {#each combobox.selected as tag}
     <span class="badge badge-neutral">{tag.name}</span>
