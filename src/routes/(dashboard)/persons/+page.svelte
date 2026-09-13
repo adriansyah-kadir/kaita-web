@@ -1,38 +1,40 @@
 <script lang="ts">
-  import Debounced from "$lib/runes/debounced.svelte";
-  import type PaginationState from "$lib/runes/pagination.svelte";
+  import FetchState from "$lib/runes/fetch.svelte";
+  import SearchParamsState from "$lib/runes/search-param.svelte";
   import { personsPaginated } from "$lib/supabase/persons";
-  import type { Tables } from "$lib/supabase/types";
+  import Pagination from "$lib/ui/pagination.svelte";
   import Table from "$lib/ui/table.svelte";
-  import SearchInput from "$lib/ui/search-input.svelte";
-  import TagsCombobox from "$lib/ui/tags-combobox.svelte";
   import AddPersonDialog from "./add-person-dialog.svelte";
-  import type { PageData } from "./$types";
+  import PersonFilter from "./person-filter.svelte";
 
-  const { data }: { data: PageData } = $props();
+  const persons = new FetchState(personsPaginated);
+  const params = new SearchParamsState({
+    page: (v) => Number(v ?? 1),
+    pageSize: (v) => Number(v ?? 5),
+    name: (v) => v,
+    tags: (v) => v?.split(","),
+  });
 
-  let table = $state<Table<Tables<"persons_view">>>();
-  let tags = $state<Tables<"tags">[]>([]);
-  const search = new Debounced(() => "");
-  const select = (pagination: PaginationState) => {
-    return personsPaginated({
-      page: pagination.page,
-      pageSize: pagination.pageSize,
-      searchName: search.value,
-      containTags: tags.map((e) => e.name),
+  const refetch = () =>
+    persons.fetch({
+      page: params.values.page,
+      pageSize: params.values.pageSize,
+      searchName: params.values.name,
+      containTags: params.values.tags,
     });
-  };
+
+  $effect(() => {
+    refetch();
+  });
 </script>
 
-<div class="p-3">
-  <div class="flex items-center gap-2">
-    <SearchInput value={search.target} oninput={search.set} />
-    <TagsCombobox bind:selected={tags} />
-    <AddPersonDialog success={table?.refetch} />
+<div class="p-3 space-y-3">
+  <div class="flex items-center gap-2 px-3">
+    <PersonFilter />
+    <AddPersonDialog success={refetch} />
   </div>
 
   <Table
-    bind:this={table}
     key={(row) => row.id!}
     columns={["name", "tags", "metadata", "created_at", "updated_at", "faces"]}
     Cells={{
@@ -49,7 +51,14 @@
       updated_at: "Updated",
       faces: "Faces",
     }}
-    {select}
+    values={persons.current?.data ?? []}
+  />
+
+  <Pagination
+    class="px-3"
+    total={persons.current?.count ?? 0}
+    pageSize={params.values.pageSize}
+    onChange={(page) => params.update({ page })}
   />
 </div>
 
