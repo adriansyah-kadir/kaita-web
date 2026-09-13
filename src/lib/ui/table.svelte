@@ -2,6 +2,7 @@
   import { type Snippet } from "svelte";
   import Checkbox from "./checkbox.svelte";
   import ComboboxState from "$lib/runes/combobox.svelte";
+  import type { HTMLAttributes } from "svelte/elements";
 
   type CellProps<K extends keyof T> = {
     cellValue: T[K];
@@ -21,7 +22,7 @@
     Cells?: Partial<{
       [K in keyof T]: Cell<K>;
     }>;
-  };
+  } & HTMLAttributes<HTMLTableElement>;
 
   let {
     selected = $bindable(),
@@ -31,6 +32,7 @@
     RowAction,
     Cells = {},
     Heads = {},
+    ...props
   }: Props = $props();
   // const values = $derived(new FetchState(select));
   const first = $derived(values.at(0));
@@ -45,7 +47,7 @@
   });
 </script>
 
-<table class="table">
+<table {...props} class="table {props.class}">
   <thead>
     <tr>
       {@render HeadCheck()}
