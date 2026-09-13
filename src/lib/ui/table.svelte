@@ -17,6 +17,7 @@
     key: (row: T) => string;
     columns?: (keyof T)[];
     selected?: T[];
+    select?: boolean;
     RowAction?: Snippet<[T]>;
     Heads?: Partial<Record<keyof T, Head>>;
     Cells?: Partial<{
@@ -25,7 +26,7 @@
   } & HTMLAttributes<HTMLTableElement>;
 
   let {
-    selected = $bindable(),
+    select,
     values,
     key,
     columns,
@@ -41,10 +42,6 @@
     items: values ?? [],
     key,
   }));
-
-  $effect(() => {
-    selected = combobox.selected;
-  });
 </script>
 
 <table {...props} class="table {props.class}">
@@ -89,7 +86,7 @@
 {/snippet}
 
 {#snippet HeadCheck()}
-  {#if selected !== undefined}
+  {#if select}
     <th
       ><Checkbox
         checked={combobox.isSelectedAll}
@@ -100,7 +97,7 @@
 {/snippet}
 
 {#snippet RowCheck(row: T)}
-  {#if selected !== undefined}
+  {#if select}
     <th>
       <Checkbox
         checked={combobox.isSelected(key(row))}
