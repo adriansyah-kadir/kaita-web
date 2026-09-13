@@ -39,7 +39,7 @@
 
   <div class="overflow-x-auto">
     <Table
-      class="[&_tr]:hover:bg-neutral bg-base-200 overflow-hidden"
+      class="[&_tr]:hover:bg-base-300 bg-base-200 overflow-hidden"
       key={(row) => row.id!}
       columns={[
         "name",
@@ -77,7 +77,7 @@
 
 {#snippet Tags({ cellValue }: { cellValue: string[] | null })}
   {#each cellValue as tag}
-    <span class="badge">{tag}</span>
+    <span class="badge text-nowrap">{tag}</span>
   {:else}
     -
   {/each}
@@ -101,5 +101,5 @@
 {/snippet}
 
 {#snippet Faces({ cellValue }: { cellValue: number | null })}
-  <a href="/faces" class="badge">{cellValue} faces</a>
+  <a href="/faces" class="badge text-nowrap">{cellValue} faces</a>
 {/snippet}
