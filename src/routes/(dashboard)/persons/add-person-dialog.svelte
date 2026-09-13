@@ -61,11 +61,8 @@
     {#each tags?.combobox.selected as t}
       <input
         hidden
-        checked
-        multiple
         name="tagIds"
         value={t.id}
-        type="checkbox"
       />
     {/each}
     <TagsCombobox bind:this={tags} />
