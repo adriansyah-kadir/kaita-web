@@ -115,7 +115,7 @@
     {#if cell}
       {@render cell({ cellValue, rowValue: row })}
     {:else}
-      {row[k]}
+      {cellValue}
     {/if}
   </td>
 {/snippet}
