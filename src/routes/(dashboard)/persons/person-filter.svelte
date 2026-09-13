@@ -12,7 +12,7 @@
 >
 
 <dialog id="person-filter" class="modal">
-  <form onreset={tags?.combobox.clear} class="modal-box w-xs">
+  <form class="modal-box w-xs">
     <Fieldset legend="Name">
       <SearchInput class="w-ful" name="name" />
     </Fieldset>

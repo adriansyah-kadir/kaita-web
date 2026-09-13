@@ -5,6 +5,7 @@
   import type { Tables } from "$lib/supabase/types";
   import SearchInput from "./search-input.svelte";
   import Debounced from "$lib/runes/debounced.svelte";
+  import onFormReset from "$lib/hooks/on-form-reset";
 
   type Tag = Tables<"tags">;
 
@@ -32,6 +33,7 @@
 </script>
 
 <button
+  {@attach onFormReset(combobox.clear)}
   type="button"
   command="toggle-popover"
   commandfor="{id}-popover"

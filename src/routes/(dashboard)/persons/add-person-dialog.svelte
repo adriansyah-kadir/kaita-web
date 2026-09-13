@@ -22,7 +22,6 @@
     addPerson.reset();
     form.reset();
     dialog?.close();
-    tags?.combobox.clear();
   };
 
   $effect(() => {
