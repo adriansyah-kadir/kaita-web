@@ -10,7 +10,7 @@ type IssuesFor<TSchema extends AnyObjectSchema> = {
 };
 
 type FormStateOptions<TSchema extends AnyObjectSchema> = {
-  onSubmit?: (values: v.InferOutput<TSchema>) => MaybePromise<void>;
+  onSubmit?: (values: v.InferOutput<TSchema>) => MaybePromise<any>;
 };
 
 export default class FormState<TSchema extends AnyObjectSchema> {
