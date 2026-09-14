@@ -1,1 +1,3 @@
-// place files you want to import through the `$lib` alias in this folder.
+export function values<T extends object>(obj: T): T[keyof T][] {
+  return Object.values(obj)
+}
