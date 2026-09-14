@@ -35,9 +35,14 @@ export default class FormState<TSchema extends AnyObjectSchema> {
       event.preventDefault();
       this.#handleSubmit(form);
     };
+    const reset = this.reset
 
     form.addEventListener("submit", handleSubmit);
-    return () => form.removeEventListener("submit", handleSubmit);
+    form.addEventListener("reset", reset)
+    return () => {
+      form.removeEventListener("submit", handleSubmit)
+      form.removeEventListener("reset", reset)
+    };
   };
 
   reset() {
@@ -63,7 +68,7 @@ export default class FormState<TSchema extends AnyObjectSchema> {
   async #validate(formData: FormData) {
     this.validating = true;
     try {
-      
+
       const data = Object.fromEntries(Object.entries(this.schema.entries as Record<string, v.BaseSchemaAsync<any, any, any>>).map(([k, s]) => {
         if (s.type === "array") return [k, formData.getAll(k)]
         return [k, formData.get(k)]
