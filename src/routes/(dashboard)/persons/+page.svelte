@@ -4,7 +4,7 @@
   import { personsPaginated } from "$lib/supabase/persons";
   import Pagination from "$lib/ui/pagination.svelte";
   import Table from "$lib/ui/table.svelte";
-  import AddPersonDialog from "./add-person-dialog.svelte";
+  import AddPersonDialog from "./create-person-dialog.svelte";
   import PersonFilter from "./person-filter.svelte";
   import EyeIcon from "@lucide/svelte/icons/eye";
 
