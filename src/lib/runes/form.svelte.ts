@@ -1,103 +1,97 @@
-import * as v from "valibot";
-import type { Attachment } from "svelte/attachments";
-import { preventDefault } from "svelte/legacy";
+import { objFrom, objKeys, objValues } from "$lib"
+import type { Attachment } from "svelte/attachments"
+import { preventDefault } from "svelte/legacy"
+import * as v from "valibot"
 
-type AnyObjectSchema = v.ObjectSchema<any, any> | v.ObjectSchemaAsync<any, any>;
-type MaybePromise<T> = T | Promise<T>;
+type FieldInput = FormDataEntryValue | FormDataEntryValue[] | null
+type PlainFieldSchema = v.BaseSchema<FieldInput, unknown, v.BaseIssue<unknown>>
+type PlainFieldSchemaAsync = v.BaseSchemaAsync<FieldInput, unknown, v.BaseIssue<unknown>>
+type PlainObjectSchema = v.ObjectSchema<Record<string, PlainFieldSchema>, any>
+type PlainObjectSchemaAsync = v.ObjectSchemaAsync<Record<string, PlainFieldSchemaAsync | PlainFieldSchema>, any>
+type ObjectSchema = PlainObjectSchema | PlainObjectSchemaAsync
+type Issues<S extends ObjectSchema> = {
+  [K in Keys<S>]: v.InferIssue<S["entries"][K]>[]
+}
+type Inputs<S extends ObjectSchema> = Partial<{
+  [K in Keys<S>]: v.InferInput<S["entries"][K]>
+}>
+type Keys<S extends ObjectSchema> = keyof S["entries"]
+type OnSubmit<S extends ObjectSchema> = (output: v.InferOutput<S>) => unknown
 
-type Issue = { message: string };
-type IssuesFor<TSchema extends AnyObjectSchema> = {
-  [K in keyof v.InferOutput<TSchema>]: Issue[];
-};
+export default class FormState<S extends ObjectSchema> {
+  #node = $state<HTMLFormElement>()
+  get node() { return this.#node }
 
-type FormStateOptions<TSchema extends AnyObjectSchema> = {
-  onSubmit?: (values: v.InferOutput<TSchema>) => MaybePromise<any>;
-};
+  #validating = $state(false)
+  get validating() { return this.#validating }
 
-export default class FormState<TSchema extends AnyObjectSchema> {
-  readonly schema: TSchema;
-  readonly onSubmit: (values: v.InferOutput<TSchema>) => MaybePromise<void>;
+  result = $state<v.SafeParseResult<S>>()
+  inputs = $state<Inputs<S>>()
 
-  issues = $state<IssuesFor<TSchema>>({} as IssuesFor<TSchema>);
-  validating = $state(false);
-  submitting = $state(false);
-
-  invalid = $derived(Object.values(this.issues).some((issues) => issues.length > 0));
-  node = $state<HTMLFormElement>()
-
-  constructor(schema: TSchema, options: FormStateOptions<TSchema> = {}) {
-    this.schema = schema;
-    this.onSubmit = options.onSubmit ?? (() => { });
-    this.reset();
+  get issues(): Issues<S> {
+    const map = (key: Keys<S>) => [key, this.result?.issues?.filter(e => e.path?.[0].key === key) ?? []] as const
+    return objFrom(objKeys(this.schemas).map(map))
   }
+
+  get outputs(): v.InferOutput<S> | undefined {
+    return this.result?.success ? this.result.output : undefined
+  }
+
+  get invalid(): boolean {
+    return objValues(this.issues).some(issues => issues.length > 0)
+  }
+
+  constructor(readonly schema: S, private onSubmit?: OnSubmit<S>) { }
 
   attach(): Attachment {
     return node => {
       const form = node.closest("form")
-      if (!form) return;
+      if (!form) return
       return this.#setup(form)
     }
   }
 
-  #setup(form: HTMLFormElement) {
-    const handle = preventDefault(this.#handleSubmit.bind(this, form))
-
-    this.node = form
-    form.addEventListener("submit", handle);
-    form.addEventListener("reset", this.reset)
-    return () => {
-      this.node = undefined
-      form.removeEventListener("submit", handle)
-      form.removeEventListener("reset", this.reset)
-    }
-  }
-
   reset = () => {
-    for (const key of Object.keys(this.schema.entries)) {
-      (this.issues as any)[key] = [];
+    this.result = undefined
+  }
+
+  get schemas() {
+    return this.schema.entries as {
+      [K in Keys<S>]: S["entries"][K]
     }
   }
 
-  async #handleSubmit(form: HTMLFormElement) {
-    this.reset();
+  #setup(form: HTMLFormElement) {
+    const onSubmit = preventDefault(this.#submit.bind(this, form))
 
-    const output = await this.#validate(new FormData(form));
-    if (output === undefined) return;
+    this.#node = form
+    form.addEventListener("submit", onSubmit)
+    return () => {
+      this.#node = undefined
+      form.removeEventListener("submit", onSubmit)
+    }
+  }
 
-    this.submitting = true;
+  async #submit(form: HTMLFormElement) {
+    this.#validating = true
     try {
-      await this.onSubmit(output);
+      const data = new FormData(form)
+      this.inputs = this.#values(data)
+      this.result = await v.safeParseAsync(this.schema, this.inputs)
+      if (this.result.success) this.onSubmit?.(this.result.output)
     } finally {
-      this.submitting = false;
+      this.#validating = false
     }
   }
 
-  async #validate(formData: FormData) {
-    this.validating = true;
-    try {
-
-      const data = Object.fromEntries(Object.entries(this.schema.entries as Record<string, v.BaseSchemaAsync<any, any, any>>).map(([k, s]) => {
-        if (s.type === "array") return [k, formData.getAll(k)]
-        return [k, formData.get(k)]
-      }));
-
-      const result = await v.safeParseAsync(this.schema, data, {
-        abortEarly: false,
-        abortPipeEarly: false,
-      });
-
-      for (const issue of result.issues ?? []) {
-        const key = String(issue.path?.[0]?.key ?? "");
-        this.#addIssue(key, issue.message);
-      }
-
-      return result.success && !this.invalid ? result.output : undefined;
-    } finally {
-      this.validating = false;
+  #values(data: FormData) {
+    const get = (key: Keys<S>): [Keys<S>, FieldInput] => {
+      const schema = this.schemas[key]
+      if (schema.type == "array") return [key, data.getAll(String(key))] as const
+      return [key, data.get(String(key))] as const
     }
-  }
 
-  #addIssue(key: keyof v.InferOutput<TSchema>, message: string) {
-    (this.issues[key] ??= []).push({ message });
+    const values = objKeys(this.schemas).map(get)
+    return objFrom(values)
   }
 }

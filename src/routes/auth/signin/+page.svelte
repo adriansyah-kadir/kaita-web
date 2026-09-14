@@ -12,13 +12,11 @@
     goto("/");
   });
 
-  const form = new FormState(signInSchema, {
-    onSubmit: signIn.fetch,
-  });
+  const form = new FormState(signInSchema, signIn.fetch);
 </script>
 
 <div class="w-dvw h-dvh flex items-center justify-center">
-  <form {@attach form.attachment} class="max-w-sm w-full">
+  <form {@attach form.attach()} class="max-w-sm w-full">
     <Fieldset
       legend="Kaita"
       class="bg-base-200 border border-base-300 rounded-box p-4 [&_legend]:text-xl"
@@ -37,7 +35,7 @@
 
       <button
         type="submit"
-        disabled={form.submitting || form.validating || signIn.fetching}
+        disabled={form.validating || signIn.fetching}
         class:ring={form.invalid || signIn.error}
         class:ring-error={form.invalid || signIn.error}
         class="btn btn-neutral mt-4">Sign In</button
