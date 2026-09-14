@@ -4,6 +4,7 @@
   import { fetchTags } from "$lib/supabase/tags";
   import SearchInput from "$lib/ui/search-input.svelte";
   import Table from "$lib/ui/table.svelte";
+  import CreateTagDialog from "./create-tag-dialog.svelte"
 
   const tags = new FetchState(fetchTags);
   const params = new SearchParamsState({
@@ -23,6 +24,7 @@
       debounce={500}
       onvalue={(name) => params.update({ name })}
     />
+    <CreateTagDialog/>
   </div>
   <div class="overflow-x-auto">
     <Table
