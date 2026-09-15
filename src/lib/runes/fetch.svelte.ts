@@ -1,4 +1,4 @@
-export default class FetchState<F extends (...any: any) => Promise<any>, E = any> {
+export default class FetchState<F extends (...any: any) => Promise<any>, E = Error> {
   fetching = $state(false)
   current = $state<Awaited<ReturnType<F>>>()
   error = $state<E>()
