@@ -66,9 +66,11 @@ export default class FormState<S extends ObjectSchema> {
 
     this.#node = form
     form.addEventListener("submit", onSubmit)
+    form.addEventListener("reset", this.reset)
     return () => {
       this.#node = undefined
       form.removeEventListener("submit", onSubmit)
+      form.removeEventListener("reset", this.reset)
     }
   }
 
