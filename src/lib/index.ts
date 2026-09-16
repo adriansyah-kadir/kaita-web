@@ -17,3 +17,18 @@ export function objFrom<K extends PropertyKey, V>(
 ): Record<K, V> {
   return Object.fromEntries(entries) as Record<K, V>
 }
+
+export function pickFiles(accept = ""): Promise<File[]> {
+  const { promise, reject, resolve } = Promise.withResolvers<File[]>()
+  const input = document.createElement("input")
+
+  input.type = "file"
+  input.accept = accept
+  input.multiple = true
+  input.oncancel = () => reject(new DOMException("File selection cancelled", "AbortError"))
+  input.onchange = () => resolve([...input.files ?? []])
+
+  input.click()
+
+  return promise
+}
