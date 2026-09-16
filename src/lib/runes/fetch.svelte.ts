@@ -2,6 +2,7 @@ export default class FetchState<F extends (...any: any) => Promise<any>, E = Err
   fetching = $state(false)
   current = $state<Awaited<ReturnType<F>>>()
   error = $state<E>()
+  success = $state<boolean>()
 
   constructor(readonly fn: F) { }
 
@@ -11,8 +12,10 @@ export default class FetchState<F extends (...any: any) => Promise<any>, E = Err
       const value = await this.fn(...input)
       this.current = value
       this.fetching = false
+      this.success = true
       return value
     } catch (e) {
+      this.success = false
       this.fetching = false
       this.error = e as any
       throw e
@@ -22,5 +25,6 @@ export default class FetchState<F extends (...any: any) => Promise<any>, E = Err
   reset = () => {
     this.current = undefined
     this.error = undefined
+    this.success = undefined
   }
 }

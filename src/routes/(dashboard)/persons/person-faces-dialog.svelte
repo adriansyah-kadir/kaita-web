@@ -22,6 +22,7 @@
 
   $effect(() => {
     if (dialog.open) list.fetch();
+    else upload.reset();
   });
 </script>
 
@@ -45,8 +46,12 @@
         name="image"
         accept="image/*"
       />
-      <span class="text-error"
-        >{form.issues.image?.map((e) => e.message).join(",")}</span
+      {#each form.issues.image as e}
+        <span class="text-error">{e.message}</span>
+      {/each}
+
+      <span class:hidden={upload.success} class="text-error"
+        >{upload.error?.message}</span
       >
     </Fieldset>
     <div>
