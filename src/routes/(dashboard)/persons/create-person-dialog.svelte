@@ -11,16 +11,16 @@
   let dialog = $state<HTMLDialogElement>();
   let tags = $state<TagsCombobox>();
   const ctx = PersonsPageContext.get();
-  const addPerson = new FetchState(insertPerson);
+  const insert = new FetchState(insertPerson);
   const form = new FormState(addPersonSchema, ({ name, tagIds }) =>
-    addPerson.fetch(name, tagIds).then(() => {
+    insert.fetch(name, tagIds).then(() => {
       ctx.refetch();
       close();
     }),
   );
 
   const close = () => {
-    addPerson.reset();
+    insert.reset();
     dialog?.close();
   };
 </script>
@@ -48,7 +48,7 @@
     {@render TagsInput()}
 
     <button type="reset" onclick={close} class="btn">Cancel</button>
-    <button disabled={addPerson.fetching} class="btn">Save</button>
+    <button disabled={insert.fetching} class="btn">Save</button>
   </form>
 </dialog>
 
