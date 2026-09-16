@@ -5,16 +5,22 @@
   import ListFilterIcon from "@lucide/svelte/icons/list-filter";
   import PersonsPageContext from "./context.svelte";
 
+  let dialog = $state<HTMLDialogElement>();
   let tags = $state<TagsCombobox>();
   const ctx = PersonsPageContext.get();
+
+  const reset = () => {
+    ctx.params.clear("name", "tags");
+    dialog?.close();
+  };
 </script>
 
 <button command="show-modal" commandfor="person-filter" class="btn btn-square"
   ><ListFilterIcon size={16} /></button
 >
 
-<dialog id="person-filter" class="modal">
-  <form onreset={() => ctx.params.clear("name", "tags")} class="modal-box w-xs">
+<dialog bind:this={dialog} id="person-filter" class="modal">
+  <form onreset={reset} onsubmit={() => dialog?.close()} class="modal-box w-xs">
     <Fieldset legend="Name">
       <SearchInput class="w-ful" name="name" />
     </Fieldset>
