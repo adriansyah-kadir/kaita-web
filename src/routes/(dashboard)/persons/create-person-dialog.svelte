@@ -13,15 +13,14 @@
   const ctx = PersonsPageContext.get();
   const addPerson = new FetchState(insertPerson);
   const form = new FormState(addPersonSchema, ({ name, tagIds }) =>
-    addPerson.fetch(name, tagIds).then((result) => {
+    addPerson.fetch(name, tagIds).then(() => {
       ctx.refetch();
-      discard();
+      close();
     }),
   );
 
-  const discard = () => {
+  const close = () => {
     addPerson.reset();
-    form.reset();
     dialog?.close();
   };
 </script>
@@ -48,7 +47,7 @@
 
     {@render TagsInput()}
 
-    <button type="reset" onclick={discard} class="btn">Cancel</button>
+    <button type="reset" onclick={close} class="btn">Cancel</button>
     <button disabled={addPerson.fetching} class="btn">Save</button>
   </form>
 </dialog>
