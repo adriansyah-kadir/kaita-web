@@ -1,40 +1,20 @@
 <script lang="ts">
-  import FetchState from "$lib/runes/fetch.svelte";
-  import SearchParamsState from "$lib/runes/search-param.svelte";
-  import { personsPaginated } from "$lib/supabase/persons";
+  import type { Tables } from "$lib/supabase/types";
   import Pagination from "$lib/ui/pagination.svelte";
   import Table from "$lib/ui/table.svelte";
+  import PersonsPageContext, { initContext } from "./context.svelte";
   import AddPersonDialog from "./create-person-dialog.svelte";
+  import PersonFacesDialog from "./person-faces-dialog.svelte";
   import PersonFilter from "./person-filter.svelte";
   import EyeIcon from "@lucide/svelte/icons/eye";
 
-  const paginated = async (...input: Parameters<typeof personsPaginated>) =>
-    personsPaginated(...input);
-  const persons = new FetchState(paginated);
-  const params = new SearchParamsState({
-    page: (v) => Number(v?.length ? v : 1),
-    pageSize: (v) => Number(v?.length ? v : 10),
-    name: (v) => v,
-    tags: (...names) => names.filter((e) => e !== undefined),
-  });
-
-  const refetch = () =>
-    persons.fetch({
-      page: params.values.page,
-      pageSize: params.values.pageSize,
-      name: params.values.name,
-      tags: params.values.tags,
-    });
-
-  $effect(() => {
-    refetch();
-  });
+  const ctx = PersonsPageContext.set(initContext());
 </script>
 
 <div class="p-3 space-y-3">
   <div class="flex items-center gap-2">
     <PersonFilter />
-    <AddPersonDialog onSuccess={refetch} />
+    <AddPersonDialog />
   </div>
 
   <div class="overflow-x-auto">
@@ -64,14 +44,15 @@
         updated_at: "Updated",
         faces: "Faces",
       }}
-      values={persons.current?.data ?? []}
+      RowAction={Action}
+      values={ctx.persons.current?.data ?? []}
     />
   </div>
 
   <Pagination
-    total={persons.current?.count ?? 0}
-    pageSize={params.values.pageSize}
-    onChange={(page) => params.update({ page })}
+    total={ctx.persons.current?.count ?? 0}
+    pageSize={ctx.params.values.pageSize}
+    onChange={(page) => ctx.params.update({ page })}
   />
 </div>
 
@@ -102,4 +83,8 @@
 
 {#snippet Faces({ cellValue }: { cellValue: number | null })}
   <a href="/faces" class="badge text-nowrap">{cellValue} faces</a>
+{/snippet}
+
+{#snippet Action(row: Tables<"persons_view">)}
+  <PersonFacesDialog person={row} />
 {/snippet}

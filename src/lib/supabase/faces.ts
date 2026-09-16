@@ -10,7 +10,7 @@ export async function selectPersonFaces(personId: string) {
 
 export async function insertFace(personId: string, embedding: Float32Array, imageId: string) {
   const query = supabase.from("faces").insert({
-    embedding: embedding.toString(),
+    embedding: JSON.stringify(Array.from(embedding)),
     image_id: imageId,
     person_id: personId
   }).select().single()

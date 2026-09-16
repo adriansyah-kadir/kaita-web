@@ -3,24 +3,21 @@
   import FormState from "$lib/runes/form.svelte";
   import { addPersonSchema } from "$lib/schemas/person";
   import { insertPerson } from "$lib/supabase/persons";
-  import type { Tables } from "$lib/supabase/types";
   import Fieldset from "$lib/ui/fieldset.svelte";
   import TagsCombobox from "$lib/ui/tags-combobox.svelte";
   import PlusIcon from "@lucide/svelte/icons/plus";
-
-  const { onSuccess }: { onSuccess?: (person: Tables<"persons">) => void } =
-    $props();
+  import PersonsPageContext from "./context.svelte";
 
   let dialog = $state<HTMLDialogElement>();
   let tags = $state<TagsCombobox>();
+  const ctx = PersonsPageContext.get();
   const addPerson = new FetchState(insertPerson);
-  const form = new FormState(addPersonSchema, {
-    onSubmit: ({ name, tagIds }) =>
-      addPerson.fetch(name, tagIds).then((result) => {
-        onSuccess?.(result.person);
-        discard();
-      }),
-  });
+  const form = new FormState(addPersonSchema, ({ name, tagIds }) =>
+    addPerson.fetch(name, tagIds).then((result) => {
+      ctx.refetch();
+      discard();
+    }),
+  );
 
   const discard = () => {
     addPerson.reset();
@@ -38,7 +35,7 @@
 </button>
 
 <dialog bind:this={dialog} id="add-person-dialog" class="modal">
-  <form {@attach form.attachment} class="modal-box">
+  <form {@attach form.attach()} class="modal-box">
     <h3 class="text-lg font-bold">Hello!</h3>
 
     <Fieldset legend="Name">
@@ -59,11 +56,7 @@
 {#snippet TagsInput()}
   <Fieldset legend="Tags">
     {#each tags?.combobox.selected as t}
-      <input
-        hidden
-        name="tagIds"
-        value={t.id}
-      />
+      <input hidden name="tagIds" value={t.id} />
     {/each}
     <TagsCombobox bind:this={tags} />
     <p class="label">Lorem ipsum dolor sit amet.</p>
