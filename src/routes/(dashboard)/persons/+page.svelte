@@ -1,8 +1,8 @@
 <script lang="ts">
   import Pagination from "$lib/ui/pagination.svelte";
   import PersonsPageContext, { initContext } from "./context.svelte";
-  import AddPersonDialog from "./create-person-dialog.svelte";
-  import PersonFilter from "./person-filter.svelte";
+  import PersonCreateDialog from "./person-create-dialog.svelte";
+  import PersonsFilter from "./persons-filter.svelte";
   import PersonsTable from "./persons-table.svelte";
 
   const ctx = PersonsPageContext.set(initContext());
@@ -10,8 +10,8 @@
 
 <div class="p-3 space-y-3">
   <div class="flex items-center gap-2">
-    <PersonFilter />
-    <AddPersonDialog />
+    <PersonsFilter />
+    <PersonCreateDialog />
   </div>
 
   <div class="overflow-x-auto">
