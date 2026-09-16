@@ -1,6 +1,7 @@
 import { building } from "$app/env"
 import { goto } from "$app/navigation"
 import { page } from "$app/state"
+import { objKeys } from "$lib"
 import { watch } from "runed"
 
 type DecodeFunction<T = any> = (...values: (string | undefined)[]) => T
@@ -46,6 +47,13 @@ export default class SearchParamsState<P extends Params> {
       else if (Array.isArray(params)) params.forEach(url.searchParams.append.bind(url.searchParams, k));
       else url.searchParams.set(k, params)
     }
+    goto(url, { keepFocus: true, noScroll: true })
+  }
+
+  clear = (...keys: (keyof P)[]) => {
+    const url = page.url
+    if (keys.length > 0) keys.map(String).forEach(key => url.searchParams.delete(key))
+    else objKeys(this.values).map(String).forEach(key => url.searchParams.delete(key))
     goto(url, { keepFocus: true, noScroll: true })
   }
 
