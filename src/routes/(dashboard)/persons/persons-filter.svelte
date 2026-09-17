@@ -3,11 +3,11 @@
   import SearchInput from "$lib/ui/search-input.svelte";
   import TagsCombobox from "$lib/ui/tags-combobox.svelte";
   import ListFilterIcon from "@lucide/svelte/icons/list-filter";
-  import PersonsPageContext from "./context.svelte";
+  import { getPersonsPageContext } from "./context.svelte";
 
   let dialog = $state<HTMLDialogElement>();
   let tags = $state<TagsCombobox>();
-  const ctx = PersonsPageContext.get();
+  const ctx = getPersonsPageContext();
 
   const reset = () => {
     ctx.params.clear("name", "tags");

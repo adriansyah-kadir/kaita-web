@@ -1,11 +1,14 @@
 <script lang="ts">
   import Pagination from "$lib/ui/pagination.svelte";
-  import PersonsPageContext, { initContext } from "./context.svelte";
+  import {
+    initPersonsPageContext,
+    setPersonsPageContext,
+  } from "./context.svelte";
   import PersonCreateDialog from "./person-create-dialog.svelte";
   import PersonsFilter from "./persons-filter.svelte";
   import PersonsTable from "./persons-table.svelte";
 
-  const ctx = PersonsPageContext.set(initContext());
+  const ctx = setPersonsPageContext(initPersonsPageContext());
 </script>
 
 <div class="p-3 space-y-3">

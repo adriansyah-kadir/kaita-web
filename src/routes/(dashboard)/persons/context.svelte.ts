@@ -1,9 +1,9 @@
 import FetchState from "$lib/runes/fetch.svelte";
 import SearchParamsState from "$lib/runes/search-param.svelte";
 import { personsPaginated } from "$lib/supabase/persons";
-import { Context } from "runed";
+import { createContext } from "svelte";
 
-export const initContext = () => {
+export const initPersonsPageContext = () => {
   const paginated = async (...input: Parameters<typeof personsPaginated>) =>
     personsPaginated(...input);
   const persons = new FetchState(paginated);
@@ -33,6 +33,6 @@ export const initContext = () => {
   }
 }
 
-const PersonsPageContext = new Context<ReturnType<typeof initContext>>("persons-page-context")
+export type PersonsPageContext = ReturnType<typeof initPersonsPageContext>
 
-export default PersonsPageContext
+export const [getPersonsPageContext, setPersonsPageContext, hasPersonsPageContext] = createContext<PersonsPageContext>()

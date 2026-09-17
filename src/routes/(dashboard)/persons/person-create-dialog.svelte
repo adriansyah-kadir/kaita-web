@@ -6,11 +6,11 @@
   import Fieldset from "$lib/ui/fieldset.svelte";
   import TagsCombobox from "$lib/ui/tags-combobox.svelte";
   import PlusIcon from "@lucide/svelte/icons/plus";
-  import PersonsPageContext from "./context.svelte";
+  import { getPersonsPageContext } from "./context.svelte";
 
   let dialog = $state<HTMLDialogElement>();
   let tags = $state<TagsCombobox>();
-  const ctx = PersonsPageContext.get();
+  const ctx = getPersonsPageContext();
   const insert = new FetchState(insertPerson);
   const form = new FormState(addPersonSchema, ({ name, tagIds }) =>
     insert.fetch(name, tagIds).then(() => {

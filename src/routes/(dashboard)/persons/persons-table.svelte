@@ -2,12 +2,12 @@
   import type { Tables } from "$lib/supabase/types";
   import EyeIcon from "@lucide/svelte/icons/eye";
   import Table from "$lib/ui/table.svelte";
-  import PersonsPageContext from "./context.svelte";
   import PersonFacesDialog from "./person-faces-dialog.svelte";
   import type { Snippet } from "svelte";
   import PersonProvider from "$lib/ui/person/person-provider.svelte";
   import { getPersonContext } from "$lib/context/person.svelte";
-  const ctx = PersonsPageContext.get();
+  import { getPersonsPageContext } from "./context.svelte";
+  const ctx = getPersonsPageContext();
 </script>
 
 <Table
