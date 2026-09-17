@@ -61,6 +61,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "faces_image_id_fkey"
+            columns: ["image_id"]
+            isOneToOne: false
+            referencedRelation: "uploads"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "faces_person_id_fkey"
             columns: ["person_id"]
             isOneToOne: false
@@ -177,6 +184,39 @@ export type Database = {
           sub: string | null
           tags: string[] | null
           updated_at: string | null
+        }
+        Relationships: []
+      }
+      uploads: {
+        Row: {
+          bucket_id: string | null
+          created_at: string | null
+          id: string | null
+          last_accessed_at: string | null
+          metadata: Json | null
+          name: string | null
+          owner_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          bucket_id?: string | null
+          created_at?: string | null
+          id?: string | null
+          last_accessed_at?: string | null
+          metadata?: Json | null
+          name?: string | null
+          owner_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          bucket_id?: string | null
+          created_at?: string | null
+          id?: string | null
+          last_accessed_at?: string | null
+          metadata?: Json | null
+          name?: string | null
+          owner_id?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }
