@@ -222,7 +222,23 @@ export type Database = {
       }
     }
     Functions: {
-      [_ in never]: never
+      get_faces_by_tags: {
+        Args: { p_tags?: string[] }
+        Returns: {
+          created_at: string
+          embedding: string
+          id: string
+          image_id: string
+          metadata: Json
+          person_id: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "faces"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
     }
     Enums: {
       [_ in never]: never
