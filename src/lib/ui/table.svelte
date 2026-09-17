@@ -18,6 +18,7 @@
     columns?: (keyof T)[];
     selected?: T[];
     select?: boolean;
+    Row?: Snippet<[{ row: T; children: Snippet }]>;
     RowAction?: Snippet<[T]>;
     Heads?: Partial<Record<keyof T, Head>>;
     Cells?: Partial<{
@@ -33,6 +34,7 @@
     RowAction,
     Cells = {},
     Heads = {},
+    Row,
     ...props
   }: Props = $props();
   // const values = $derived(new FetchState(select));
@@ -58,15 +60,14 @@
   </thead>
   <tbody>
     {#each values as row}
-      <tr>
-        {@render RowCheck(row)}
-        {#each headers as k}
-          {@render Cell(row, k)}
-        {/each}
-        {#if RowAction}
-          <td>{@render RowAction(row)}</td>
-        {/if}
-      </tr>
+      {#snippet Inner()}
+        {@render RowInner(row)}
+      {/snippet}
+      {#if Row}
+        {@render Row({ row, children: Inner })}
+      {:else}
+        {@render Inner()}
+      {/if}
     {/each}
   </tbody>
   {#if !values.length}
@@ -83,6 +84,18 @@
   {:else}
     {k}
   {/if}
+{/snippet}
+
+{#snippet RowInner(row: T)}
+  <tr>
+    {@render RowCheck(row)}
+    {#each headers as k}
+      {@render Cell(row, k)}
+    {/each}
+    {#if RowAction}
+      <td>{@render RowAction(row)}</td>
+    {/if}
+  </tr>
 {/snippet}
 
 {#snippet HeadCheck()}
