@@ -13,7 +13,7 @@
 <div class="flex flex-wrap *:w-1/4 *:grow items-end gap-2 mb-2">
   {#each Object.entries(embeddings) as [k, embedding] (k)}
     {const remove = discard.bind(null, k)}
-    <PersonFaceUploadItem {...embedding} onDiscard={remove} onDelete={remove} />
+    <PersonFaceUploadItem {...embedding} onDiscard={remove} onDelete={remove} onUploaded={remove} />
   {/each}
 </div>
 
