@@ -11,8 +11,10 @@
 
   let {
     selected = $bindable([]),
+    name
   }: {
     selected?: Tag[];
+    name?: string
   } = $props();
 
   const id = crypto.randomUUID();
@@ -40,6 +42,7 @@
   class="input flex-wrap h-auto cursor-pointer w-full py-2"
 >
   {#each combobox.selected as tag}
+    <input hidden value={tag.id} {name}/>
     <span class="badge badge-neutral">{tag.name}</span>
   {:else}
     Select tags
