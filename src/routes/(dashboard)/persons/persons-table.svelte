@@ -76,6 +76,6 @@
   <span class="badge text-nowrap">{person.faces.current?.count} faces</span>
 {/snippet}
 
-{#snippet Action(row: Tables<"persons_view">)}
-  <PersonFacesDialog person={row} />
+{#snippet Action()}
+  <PersonFacesDialog />
 {/snippet}

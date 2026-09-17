@@ -6,9 +6,9 @@
   const ctx = getPersonContext();
 </script>
 
-<div>
-  {#each ctx.faces.current?.data as face}
-    <div>
+<div class="flex flex-wrap *:w-1/4 [&_img]:rounded-t-md [&_img]:w-full gap-2 items-end">
+  {#each ctx.faces.current?.data as face (face.id)}
+    <div class="[&>button]:w-full [&>button]:rounded-t-none">
       <UploadedImageViewer id={face.image_id!} />
       <FaceDeleteBtn {face} onDelete={ctx.faces.fetch} />
     </div>

@@ -13,17 +13,15 @@
   const {
     cropped,
     embedding,
-    personId,
     onSuccess,
   }: Extracted & {
-    personId: string;
     onSuccess?: (face: Tables<"faces">) => any;
   } = $props();
 
   const person = hasPersonContext() ? getPersonContext() : undefined;
   const insert = new FetchState(async () => {
     const uploaded = await uploadFile(cropped);
-    const face = await insertFace(personId, embedding, uploaded.id);
+    const face = await insertFace(person!.person.id!, embedding, uploaded.id);
     return face;
   });
 
