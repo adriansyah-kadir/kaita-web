@@ -32,3 +32,15 @@ export function pickFiles(accept = ""): Promise<File[]> {
 
   return promise
 }
+
+export async function requestMediaDevices(constraints?: MediaStreamConstraints) {
+  constraints ??= { audio: true, video: true }
+  await navigator.mediaDevices.getUserMedia(constraints)
+  const devices = await navigator.mediaDevices.enumerateDevices()
+  return devices.filter(device => {
+    const isAudio = constraints.audio && device.kind === "audioinput"
+    const isVideo = constraints.video && device.kind === "videoinput"
+    const isKind = constraints.audio && constraints.video || isAudio || isVideo
+    return isKind
+  })
+}
