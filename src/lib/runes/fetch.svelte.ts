@@ -10,6 +10,13 @@ export default class FetchState<F extends (...any: any) => Promise<any>, E = Err
     return this.#success === true
   }
 
+  failed(): this is {
+    error: E
+  } {
+    return this.#success === false
+  }
+
+
   constructor(readonly fn: F) { }
 
   fetch = async (...input: Parameters<F>): Promise<Awaited<ReturnType<F>>> => {
