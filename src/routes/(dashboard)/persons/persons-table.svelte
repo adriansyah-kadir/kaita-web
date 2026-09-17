@@ -46,28 +46,28 @@
   </PersonProvider>
 {/snippet}
 
-{#snippet Tags({ cellValue }: { cellValue: string[] | null })}
-  {#each cellValue as tag}
+{#snippet Tags(tags: string[] | null)}
+  {#each tags as tag}
     <span class="badge text-nowrap">{tag}</span>
   {:else}
     -
   {/each}
 {/snippet}
 
-{#snippet Timestamp({ cellValue }: { cellValue: string | null })}
-  {new Date(cellValue!).toLocaleString("id", {
+{#snippet Timestamp(timestamp: string | null)}
+  {new Date(timestamp!).toLocaleString("id", {
     timeStyle: "short",
     dateStyle: "short",
   })}
 {/snippet}
 
-{#snippet Json({ cellValue }: { cellValue: any })}
+{#snippet Json(json: any)}
   {@const id = crypto.randomUUID()}
   <button command="show-modal" commandfor={id} class="btn btn-sm btn-square"
     ><EyeIcon size={16} /></button
   >
   <dialog {id} class="modal">
-    <div class="modal-box">{JSON.stringify(cellValue)}</div>
+    <div class="modal-box">{JSON.stringify(json)}</div>
   </dialog>
 {/snippet}
 

@@ -4,12 +4,7 @@
   import ComboboxState from "$lib/runes/combobox.svelte";
   import type { HTMLAttributes } from "svelte/elements";
 
-  type CellProps<K extends keyof T> = {
-    cellValue: T[K];
-    rowValue: T;
-  };
-
-  type Cell<K extends keyof T> = Snippet<[CellProps<K>]>;
+  type Cell<K extends keyof T> = Snippet<[T[K], T]>;
   type Head = Snippet | string;
 
   type Props = {
@@ -121,11 +116,11 @@
 {/snippet}
 
 {#snippet Cell(row: T, k: keyof T)}
-  {@const cell = Cells[k]}
+  {@const cellRender = Cells[k]}
   {@const cellValue = row[k]}
   <td>
-    {#if cell}
-      {@render cell({ cellValue, rowValue: row })}
+    {#if cellRender}
+      {@render cellRender(cellValue, row)}
     {:else}
       {cellValue}
     {/if}
