@@ -13,6 +13,7 @@
     prefix,
     suffix,
     links = [
+      { name: "Live", link: "/live" },
       { name: "Persons", link: "/persons" },
       { name: "Tags", link: "/tags" },
     ],
