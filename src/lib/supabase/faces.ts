@@ -3,7 +3,7 @@ import supabase from ".";
 export const selectFaces = supabase.from("faces").select()
 
 export async function selectPersonFaces(personId: string) {
-  const { count, data, error } = await supabase.from("faces").select().eq("person_id", personId)
+  const { count, data, error } = await supabase.from("faces").select(undefined, { count: "exact" }).eq("person_id", personId)
   if (error) throw error;
   return { count, data }
 }
