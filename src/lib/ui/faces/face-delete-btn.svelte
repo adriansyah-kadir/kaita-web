@@ -1,4 +1,8 @@
 <script lang="ts">
+  import {
+    getPersonContext,
+    hasPersonContext,
+  } from "$lib/context/person.svelte";
   import FetchState from "$lib/runes/fetch.svelte";
   import supabase from "$lib/supabase";
   import type { Tables } from "$lib/supabase/types";
@@ -12,6 +16,7 @@
     onDelete?: () => any;
   } = $props();
 
+  const person = hasPersonContext() ? getPersonContext() : undefined;
   const del = new FetchState(async () => {
     const { error, data } = await supabase
       .from("faces")
@@ -30,7 +35,10 @@
   });
 
   function onClick() {
-    del.fetch().then(onDelete);
+    del.fetch().then(() => {
+      onDelete?.();
+      person?.faces.fetch();
+    });
   }
 </script>
 

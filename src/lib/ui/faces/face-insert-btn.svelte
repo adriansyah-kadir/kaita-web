@@ -1,4 +1,8 @@
 <script lang="ts">
+  import {
+    getPersonContext,
+    hasPersonContext,
+  } from "$lib/context/person.svelte";
   import FetchState from "$lib/runes/fetch.svelte";
   import type { Extracted } from "$lib/services/embeddings";
   import { insertFace } from "$lib/supabase/faces";
@@ -16,6 +20,7 @@
     onSuccess?: (face: Tables<"faces">) => any;
   } = $props();
 
+  const person = hasPersonContext() ? getPersonContext() : undefined;
   const insert = new FetchState(async () => {
     const uploaded = await uploadFile(cropped);
     const face = await insertFace(personId, embedding, uploaded.id);
@@ -23,7 +28,10 @@
   });
 
   function onClick() {
-    insert.fetch().then(onSuccess);
+    insert.fetch().then((face) => {
+      onSuccess?.(face);
+      person?.faces.fetch();
+    });
   }
 </script>
 

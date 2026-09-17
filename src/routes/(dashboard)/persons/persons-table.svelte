@@ -4,6 +4,9 @@
   import Table from "$lib/ui/table.svelte";
   import PersonsPageContext from "./context.svelte";
   import PersonFacesDialog from "./person-faces-dialog.svelte";
+  import type { Snippet } from "svelte";
+  import PersonProvider from "$lib/ui/person/person-provider.svelte";
+  import { getPersonContext } from "$lib/context/person.svelte";
   const ctx = PersonsPageContext.get();
 </script>
 
@@ -27,8 +30,21 @@
     faces: "Faces",
   }}
   RowAction={Action}
+  {Row}
   values={ctx.persons.current?.data ?? []}
 />
+
+{#snippet Row({
+  children,
+  row,
+}: {
+  children: Snippet;
+  row: Tables<"persons_view">;
+})}
+  <PersonProvider person={row}>
+    {@render children()}
+  </PersonProvider>
+{/snippet}
 
 {#snippet Tags({ cellValue }: { cellValue: string[] | null })}
   {#each cellValue as tag}
@@ -55,8 +71,9 @@
   </dialog>
 {/snippet}
 
-{#snippet Faces({ cellValue }: { cellValue: number | null })}
-  <span class="badge text-nowrap">{cellValue} faces</span>
+{#snippet Faces()}
+  {const person = getPersonContext()}
+  <span class="badge text-nowrap">{person.faces.current?.count} faces</span>
 {/snippet}
 
 {#snippet Action(row: Tables<"persons_view">)}
