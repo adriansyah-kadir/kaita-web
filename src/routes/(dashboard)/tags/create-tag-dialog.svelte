@@ -8,9 +8,9 @@
 
   let dialog = $state<HTMLDialogElement>();
   const insert = new FetchState(insertTag);
-  const form = new FormState(createTagSchema, {
-    onSubmit: ({ name }) => insert.fetch(name).then(() => dialog?.close()),
-  });
+  const form = new FormState(createTagSchema, ({ name }) =>
+    insert.fetch(name).then(() => dialog?.close()),
+  );
 </script>
 
 <button
@@ -23,7 +23,7 @@
 </button>
 
 <dialog bind:this={dialog} id="create-tag-dialog" class="modal">
-  <form {@attach form.attachment} class="modal-box space-y-2">
+  <form {@attach form.attach()} class="modal-box space-y-2">
     <Fieldset legend="Name">
       <input name="name" class="input" />
       {#each form.issues.name as e}
