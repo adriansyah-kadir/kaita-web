@@ -2,8 +2,12 @@ import tailwindcss from '@tailwindcss/vite';
 import adapter from '@sveltejs/adapter-static';
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
+import sonda from "sonda/sveltekit"
 
 export default defineConfig({
+	build: {
+		sourcemap: true
+	},
 	plugins: [
 		tailwindcss(),
 		sveltekit({
@@ -15,6 +19,7 @@ export default defineConfig({
 			experimental: {
 				explicitEnvironmentVariables: true
 			}
-		})
+		}),
+		sonda()
 	]
 });
