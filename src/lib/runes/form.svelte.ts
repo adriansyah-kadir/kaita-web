@@ -89,11 +89,17 @@ export default class FormState<S extends ObjectSchema> {
   #values(data: FormData) {
     const get = (key: Keys<S>): [Keys<S>, FieldInput] => {
       const schema = this.schemas[key]
-      if (schema.type == "array") return [key, data.getAll(String(key))] as const
+      if (this.#isArraySchema(schema)) return [key, data.getAll(String(key))] as const
       return [key, data.get(String(key))] as const
     }
 
     const values = objKeys(this.schemas).map(get)
     return objFrom(values)
+  }
+
+  #isArraySchema(schema: PlainFieldSchema | PlainFieldSchemaAsync): boolean {
+    if (schema.type === "array") return true
+    if ("wrapped" in schema) return this.#isArraySchema(schema.wrapped as PlainFieldSchema | PlainFieldSchemaAsync)
+    return false
   }
 }
