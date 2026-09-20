@@ -5,17 +5,18 @@ import * as v from "valibot"
 export type LiveSchema = v.InferOutput<typeof liveSchema>
 
 export const liveSchema = v.objectAsync({
-  tags: v.optionalAsync(v.pipeAsync(
-    v.array(v.pipe(
+  tags: v.pipeAsync(
+    v.nullable(v.array(v.pipe(
       v.string(),
       v.uuid(),
-    )),
+    )), null),
     v.transformAsync(async tags => {
+      if (tags === null) return undefined;
       const { data, error } = await supabase.from("tags").select("*").in("id", [...new Set(tags)])
       if (error) throw error;
       return data
     })
-  )),
+  ),
   device: v.pipeAsync(
     v.string(),
     v.checkAsync(async deviceId => {
