@@ -1,7 +1,7 @@
 import { stateChange } from "$lib/hooks/state-change"
 import WebRTCState from "$lib/runes/webrtc.svelte"
 import type { LiveSchema } from "$lib/schemas/live"
-import supabase from "$lib/supabase"
+import { fetchEmbeddings, type FaceEmbedding } from "$lib/supabase/faces"
 import ky from "ky"
 
 const API_BASE_URL = "http://localhost:8000"
@@ -11,12 +11,24 @@ export default class RecognitionService {
   webrtc: WebRTCState
 
   #local = $state<RTCRtpSender>()
+
   #session = $state<string>()
+
+  #recognized = $state<Record<string, RecognizeEvent>>({})
+
+  #sse = $state<EventSource>()
 
   constructor() {
     this.webrtc = new WebRTCState({
       iceServers: [{ urls: ["stun:stun.l.google.com:19302"] }]
-    }, { onIceCandidate: this.#sendIceCandidate, onNegotiationNeeded: this.#negotiate })
+    }, {
+      onIceCandidate: this.#sendIceCandidate,
+      onNegotiationNeeded: this.#negotiate
+    })
+  }
+
+  get waitSession() {
+    return stateChange(() => this.#session, session => session !== undefined)
   }
 
   get session() {
@@ -25,6 +37,10 @@ export default class RecognitionService {
 
   get connected() {
     return this.#session !== undefined && this.webrtc.connectionState === "connected"
+  }
+
+  get recognized() {
+    return this.#recognized
   }
 
   get local() {
@@ -37,8 +53,11 @@ export default class RecognitionService {
   }
 
   start = async (config: LiveSchema) => {
-    this.#local = await this.#setupRTC(config.device)
-    this.#session = await this.#requestSession(await this.#fetchEmbeddings())
+    const tags = config.tags?.map(e => e.id)
+    const embeddings = await fetchEmbeddings(tags)
+    this.#local = await this.#setupCam(config.device)
+    this.#session = await this.#requestSession(embeddings)
+    this.#sse = await this.#listenEvent()
     return this
   }
 
@@ -46,15 +65,32 @@ export default class RecognitionService {
     this.webrtc.restart()
     this.#local = undefined
     this.#session = undefined
+    this.#sse?.close()
+    this.#sse = undefined
   }
 
-  async #setupRTC(device: MediaStream) {
-    this.webrtc.instance?.addTransceiver("video", { direction: "sendrecv" })
-    return this.webrtc.instance?.addTrack(device.getVideoTracks()[0])
+  async #listenEvent() {
+    const session = await this.waitSession
+    const sse = new EventSource(`${API_BASE_URL}/${session}/events`)
+    sse.addEventListener("recognized", ev => {
+      console.log(ev.data)
+    })
+    return sse
+  }
+
+  async #setupCam(device: MediaStream) {
+    const pc = await this.webrtc.waitInstance
+    pc.addTransceiver("video", { direction: "sendrecv" })
+    const local = pc.addTrack(device.getVideoTracks()[0])
+    const params = local.getParameters()
+    params.degradationPreference = "maintain-resolution"
+    params.encodings[0].scaleResolutionDownBy = 1
+    await local.setParameters(params)
+    return local
   }
 
   #negotiate = async () => {
-    const session = await stateChange(() => this.#session, session => session !== undefined)
+    const session = await this.waitSession
     const offer = await this.webrtc.offer()
     const sdp = await ky.post(`${API_BASE_URL}/webrtc/${session}/sdp`, { json: offer }).json<RTCSessionDescription | undefined>()
     if (sdp) this.webrtc.answer(sdp);
@@ -63,15 +99,6 @@ export default class RecognitionService {
   async #requestSession(embeddings: FaceEmbedding[]) {
     const body = await this.#buildMetadata(embeddings)
     return ky.post(`${API_BASE_URL}/webrtc`, { body }).json<string>()
-  }
-
-  async #fetchEmbeddings(tags?: string[]): Promise<FaceEmbedding[]> {
-    const { data, error } = await supabase.rpc("get_faces_by_tags", { p_tags: tags })
-    if (error) throw error;
-    return data.map((row) => ({
-      identity: row.person_id,
-      embedding: parseEmbedding(row.embedding),
-    }))
   }
 
   #sendIceCandidate = async (candidate: RTCIceCandidate) => {
@@ -97,19 +124,8 @@ export default class RecognitionService {
   }
 }
 
-type FaceEmbedding = {
-  identity: string
-  embedding: Float32Array
-}
-
-function parseEmbedding(raw: string | number[], expectedDim = EMBEDDING_DIM): Float32Array {
-  const values = typeof raw === "string"
-    ? JSON.parse(raw) as number[]
-    : raw
-
-  if (!Array.isArray(values) || values.length !== expectedDim) {
-    throw new Error(`Invalid embedding: expected ${expectedDim} values, got ${Array.isArray(values) ? values.length : typeof values}`)
-  }
-
-  return Float32Array.from(values)
+type RecognizeEvent = {
+  identity: string,
+  cropped: Blob,
+  confidence: number
 }

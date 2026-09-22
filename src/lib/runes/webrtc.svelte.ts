@@ -1,4 +1,5 @@
 import { objValues } from "$lib"
+import { stateChange } from "$lib/hooks/state-change"
 import { untrack } from "svelte"
 
 export default class WebRTCState {
@@ -31,6 +32,7 @@ export default class WebRTCState {
   }
 
   get instance() { return this.#instance }
+  get waitInstance() { return stateChange(() => this.#instance, pc => pc !== undefined) }
   get streams() { return this.#streams }
   get tracks() { return objValues(this.#streams).flatMap(s => s.getTracks()) }
   get videoTracks() { return objValues(this.#streams).flatMap(s => s.getVideoTracks()) }
