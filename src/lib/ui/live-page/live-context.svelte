@@ -5,6 +5,12 @@
   function initLiveContext() {
     const recognition = new RecognitionService();
 
+    $effect(() => {
+      if (recognition.webrtc.connectionState === "disconnected") {
+        recognition.stop()
+      }
+    })
+
     return {
       recognition,
     };
