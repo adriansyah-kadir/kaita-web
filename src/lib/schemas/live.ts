@@ -10,10 +10,14 @@ export const liveSchema = v.objectAsync({
       v.string(),
       v.uuid(),
     )), null),
-    v.transformAsync(async tags => {
+    v.rawTransformAsync(async ({ dataset, addIssue, NEVER }) => {
+      const tags = dataset.value
       if (tags === null) return undefined;
       const { data, error } = await supabase.from("tags").select("*").in("id", [...new Set(tags)])
-      if (error) throw error;
+      if (error) {
+        addIssue(error)
+        return NEVER
+      }
       return data
     })
   ),
