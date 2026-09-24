@@ -6,7 +6,6 @@
   import { getPersonsPageContext } from "./context.svelte";
 
   let dialog = $state<HTMLDialogElement>();
-  let tags = $state<TagsCombobox>();
   const ctx = getPersonsPageContext();
 
   const reset = () => {
@@ -26,10 +25,7 @@
     </Fieldset>
 
     <Fieldset legend="Tags">
-      {#each tags?.combobox.selected as tag}
-        <input hidden name="tags" value={tag.name} />
-      {/each}
-      <TagsCombobox bind:this={tags} />
+      <TagsCombobox value={t => t.name} name="tags" />
     </Fieldset>
 
     <button type="reset" class="btn mt-2">Clear</button>
