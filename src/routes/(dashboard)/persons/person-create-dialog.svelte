@@ -54,10 +54,7 @@
 
 {#snippet TagsInput()}
   <Fieldset legend="Tags">
-    {#each tags?.combobox.selected as t}
-      <input hidden name="tagIds" value={t.id} />
-    {/each}
-    <TagsCombobox bind:this={tags} />
+    <TagsCombobox name="tagIds" />
     <p class="label">Lorem ipsum dolor sit amet.</p>
     {#each form.issues.tagIds as issue}
       <p class="text-error">{issue.message}</p>
