@@ -1,4 +1,6 @@
 [popover] {
+  @apply bg-transparent;
+
   --offset: 8px;
   --slide: 8px; /* internal: sign flips per fallback, see below */
 

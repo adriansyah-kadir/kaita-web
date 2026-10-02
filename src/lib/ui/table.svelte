@@ -108,7 +108,7 @@
   {#if select}
     <th>
       <Checkbox
-        checked={combobox.isSelected(key(row))}
+        checked={combobox.checked(key(row))}
         onchecked={combobox.toggle.bind(null, key(row))}
       /></th
     >

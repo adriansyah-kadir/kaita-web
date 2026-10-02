@@ -68,7 +68,7 @@ export default class ComboboxState<T> {
     })
   }
 
-  isSelected = (key: string) => {
+  checked = (key: string) => {
     return this.#selected.has(key)
   }
 
@@ -88,7 +88,7 @@ export default class ComboboxState<T> {
   }
 
   select = (key: string) => {
-    if (this.isSelected(key)) return false
+    if (this.checked(key)) return false
 
     const item = this.#items.get(key)
     if (item === undefined) return false
@@ -98,15 +98,15 @@ export default class ComboboxState<T> {
   }
 
   unselect = (key: string) => {
-    if (this.isSelected(key)) return this.#selected.delete(key);
+    if (this.checked(key)) return this.#selected.delete(key);
     return false
   }
 
   toggle = (key: string, checked?: boolean) => {
-    const select = checked ?? !this.isSelected(key)
+    const select = checked ?? !this.checked(key)
     if (!select) this.unselect(key);
     else this.select(key)
-    return this.isSelected(key)
+    return this.checked(key)
   }
 
   toggleall = (checked?: boolean) => {
